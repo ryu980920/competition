@@ -17,7 +17,7 @@
 
 ## 이론 학습
 
-- [GAA-TFET 학습 가이드](reports/GAA-TFET_학습가이드.docx) — TFET vs MOSFET, BTBT, Point/Line-Tunneling, Ambipolar 핵심 개념과 우선순위 논문 목록, Sentaurus BTBT/양자구속 문법 정리, SVisual 코드 예시.
+- [GAA-TFET 학습 가이드](reports/gaa-tfet-learning-guide.md) — TFET vs MOSFET, BTBT, Point/Line-Tunneling, Ambipolar 핵심 개념과 우선순위 논문 목록, Sentaurus BTBT/양자구속 문법 정리, SVisual 코드 예시.
 
 ## 구조 코드 분석 (팀 분석 노트)
 
