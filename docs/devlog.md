@@ -34,4 +34,4 @@
 - [ ] 도핑 select 블록을 p-i-n(소스 p+ / 드레인 n+)으로 수정
 
 ### 참고
-- 수상작 분석 및 추천 주제, GAA 학습 가이드, 구조 코드 분석 문서 (팀 공유 파일 → `docs/references.md`에 정리 예정)
+- 수상작 분석 및 추천 주제, GAA 학습 가이드, 구조 코드 분석 문서 3종 → [`docs/references.md`](references.md)에 정리 완료
