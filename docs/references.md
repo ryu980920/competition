@@ -5,6 +5,7 @@
 ## 프로젝트 개요
 
 - [GAA-TFET 프로젝트 개념 정리](reports/GAA-TFET_프로젝트_개념정리.docx) — 팀 내부 스터디용. 주제가 나온 배경(전력 문제 → 60mV/dec 한계), 에너지 밴드부터 시작하는 기초 개념, GAA·TFET 동작 원리, Point vs Line-Tunneling, Ambipolar 문제, 우리가 개선할 것과 정량 목표, 4주 검증 계획, 용어집.
+- [TFET/GAA 물리 Q&A 정리](reports/GAA-TFET_QA_스터디노트.docx) — 위 개념정리 문서를 팀원들과 검토하며 나온 질의응답을 정리한 심화 스터디 노트. 동작전압/문턱전압부터 시작해 터널링이 실제로 일어나는 위치, MOSFET과의 접합부 비교, Point/Line-Tunneling의 표면·벌크 경로, 공핍층과 도핑 농도 관계, Ambipolar 방향, GIDL 등 MOSFET의 BTBT까지 다룸.
 
 ## 주제 선정
 
