@@ -1,30 +1,31 @@
-# GAA-TFET 경진대회 프로젝트
+# GAA 나노시트 층별 차등 Vt-Implant 경진대회 프로젝트
 
-차세대반도체 경진대회(소자/공정 부문) 출품 프로젝트. GAA 나노시트 구조에 Line-Tunneling TFET을 적용해, 멀티시트 적층이 터널링 접합 면적과 SS(Subthreshold Swing)에 미치는 영향을 TCAD로 정량 검증한다.
+차세대반도체 경진대회(소자/공정 부문) 출품 프로젝트. GAA 나노시트 적층 구조에서 시트 위치(top/middle/bottom)별로 발생하는 Vth·SS 편차(Inter-sheet Variation)를, 다중 에너지 이온주입 기반 층별 차등 Vt-Implant로 억제하는 것을 TCAD로 정량 검증한다.
 
 - **팀 구성**: 3인
 - **지원 분야**: ① 소자/공정
 - **시뮬레이션 툴**: Synopsys Sentaurus TCAD (SProcess / SDevice / SVisual)
 
+> **주제 전환 이력**: 이 프로젝트는 원래 "GAA-TFET(Line-Tunneling + 비대칭 도핑)"으로 시작했으나, baseline 논문 조사 중 구조·수치가 사실상 동일한 논문을 발견해 방향을 전환했다. 자세한 경위는 [`docs/devlog.md`](docs/devlog.md)의 2026-07-30 항목 참고.
+
 ## 진행 상황
 
 | 단계 | 상태 | 비고 |
 |---|---|---|
-| 주제 선정 | ✅ 완료 | GAA 나노시트 Line-Tunneling TFET + 비대칭 도핑 Ambipolar 억제 |
-| 실현 가능성 검토 | ✅ 완료 | 단계별 확장 전략(Tier 0~3) 수립 |
+| 1차 주제 선정 (GAA-TFET) | ✅ 완료 → 전환 | baseline 논문과 구조·수치 중복 발견으로 재검토 |
+| 주제 전환 (GAA + Vt-Implant) | ✅ 완료 | 층별 차등 Halo Doping 검토 → GAA엔 halo 적용 불가 확인 → 다중 에너지 blanket Vt-Implant로 최종 확정 |
 | 툴 환경 확인 | ✅ 완료 | 학교 라이선스 AdvancedTransportPackage에서 관련 예제 3종 확보 |
-| 예제 코드 분석 | ✅ 완료 | NSFET(3-stack), Nanowire SBTE, Nanowire NEGF 구조 스크립트 라인별 분석 |
-| Baseline 구조 구현 | ⬜ 예정 | 코드 C(단순 나노와이어) 기반 |
-| BTBT 모델 캘리브레이션 | ⬜ 예정 | 문헌 실측 데이터 기준 |
-| p-i-n 도핑 전환 | ⬜ 예정 | 소스/드레인 반대 타입으로 분리 |
-| Line-Tunneling 구현 | ⬜ 예정 | 게이트-소스 오버랩 + Nonlocal Mesh |
-| 멀티시트 확장 | ⬜ 예정 | 코드 A(NSFET) 기반, nStack 스윕 |
-| Ambipolar 억제 | ⬜ 예정 | 소스/드레인 비대칭 도핑·Spacer |
+| 예제 코드 분석 | ✅ 완료 | NSFET(3-stack), Nanowire SBTE, Nanowire NEGF 구조 스크립트 라인별 분석 (표준 MOSFET 구조라 현재 주제에 그대로 활용 가능) |
+| Baseline 구조 구현 | ⬜ 예정 | Loubet 2017 / MDPI 2021 수치(Lg 25.8nm, 시트두께 6nm, 4층) 기반 |
+| 균일 Vt-implant baseline 편차 정량화 | ⬜ 예정 | 시트별 Vth·SS 개별 추출, ΔVth/ΔSS 산출 |
+| Analytic 프로파일 1차 검증 | ⬜ 예정 | 층별 차등 도핑의 전기적 효과 여부 확인 |
+| 감도분석 | ⬜ 예정 | Energy/Dose/Anneal 중 편차 유발 요인 규명 |
+| 다중 에너지 임플란트 역산 | ⬜ 예정 | 목표 프로파일을 실제 (Energy, Dose) 조합으로 구현 |
 | 결과 정리·발표자료 | ⬜ 예정 | |
 
 ## 주제 선정 배경 (요약)
 
-팀원 포트폴리오(TCAD PMOS 공정 최적화, 30/60nm NMOS Short Channel Effect 개선, QCLAS 반도체공학회 발표, LAS 공정 분석 프로젝트)를 바탕으로 소자/공정 분야 후보를 검토했다. POLARIS SIF·한국반도체학술대회(KCS)·삼성휴먼테크논문대상 수상작 11건을 분석한 결과, 1차 후보였던 "GAA + HKMG 최적화"는 이미 산업 표준 조합이라 독창성이 부족하다고 판단해 기각했다. 이후 "GAA 시트별 차등 Halo Doping"(구조 최적화)과 "GAA-TFET"(소자 동작원리 변경) 두 방향을 비교했고, 소자 자체를 바꾸는 방향이 경진대회 취지에 더 부합한다고 판단해 GAA-TFET, 그중에서도 GAA 멀티시트 구조와 구조적 시너지가 있는 Line-Tunneling 방식으로 최종 확정했다. 자세한 과정은 [`docs/devlog.md`](docs/devlog.md)의 첫 항목 참고.
+팀원 포트폴리오(TCAD PMOS 공정 최적화, 30/60nm NMOS Short Channel Effect 개선, QCLAS 반도체공학회 발표, LAS 공정 분석 프로젝트)를 바탕으로 소자/공정 분야 후보를 검토했다. POLARIS SIF·한국반도체학술대회(KCS)·삼성휴먼테크논문대상 수상작 11건을 분석한 결과, 1차 후보였던 "GAA + HKMG 최적화"는 이미 산업 표준 조합이라 독창성이 부족하다고 판단해 기각했다. 이후 "GAA 시트별 차등 Halo Doping"(구조 최적화)과 "GAA-TFET"(소자 동작원리 변경) 두 방향을 비교해 GAA-TFET으로 진행했으나, baseline 논문 조사 중 구조·수치가 거의 동일한 기존 논문을 발견해 원래 추천안이었던 "시트별 차등 도핑" 방향으로 복귀했다. 다만 Halo Doping은 GAA 릴리즈 후 구조에 물리적으로 적용할 수 없다는 것을 확인해, 다중 에너지 이온주입 기반 blanket Vt-Implant로 구현 방법을 최종 수정했다. 자세한 과정은 [`docs/devlog.md`](docs/devlog.md) 참고.
 
 ## 저장소 구조
 
