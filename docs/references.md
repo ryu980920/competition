@@ -1,76 +1,107 @@
 # 참고 자료
 
-프로젝트 진행 중 정리한 조사·분석 자료 목록.
+> **현재 주제**: DRAM BCAT 코너 라운딩(Fin Fillet Radius) × Elevated Source/Drain 접합 도핑 결합 최적화 — GIDL·리텐션·Row Hammer 내성 관점의 상호작용 규명
+>
+> 이 문서는 **현재 주제에 필요한 자료만** 담는다. 이전에 검토했다가 폐기한 GAA 나노시트 계열의 참고문헌은 [`topic-selection-history.md`](topic-selection-history.md)로 옮겼다.
 
-> **최종 확정 주제**: DRAM BCAT(Buried Channel Array Transistor)의 코너 라운딩(Fin Fillet Radius) + Elevated Source/Drain 접합 도핑 저감 결합 최적화 — GIDL·리텐션 특성 개선.
-> 이 프로젝트는 **GAA-TFET → GAA 시트별 차등 Halo Doping → 다중 에너지 Vt-Implant → WFM 비교/초협소 간격 검증**까지 GAA 나노시트 계열로 여러 차례 방향을 다듬었으나, RDF 정량화 가능 여부가 불확실해지고 팀 내부에서도 양산성 이견이 제기되어 **GAA 나노시트 계열 전체를 폐기**했다. 이후 수상작 분석·심사기준·논문 중복 배제·양산 가능성 네 기준으로 소자군을 전면 재검토해 **DRAM BCAT**로 최종 전환했다. 전환 과정과 사유는 [`devlog.md`](devlog.md) 참고. GAA 관련 조사 자료(아래 "폐기된 GAA 나노시트 경로" 절)는 향후 유사 아이디어 재검토 시 참고용으로 그대로 보존한다.
+## 1. 베이스라인 (팀 전원 필독)
 
-## 주제 선정
+**[B1]** J. Kim et al., ["Simulation Study: The Impact of Structural Variations on the Characteristics of a Buried-Channel-Array Transistor (BCAT) in DRAM,"](https://www.mdpi.com/2072-666X/13/9/1476) *Micromachines*, 2022, 13(9), 1476.
 
-- [수상작 분석 및 추천 주제](reports/award-analysis-and-topic-selection.md) — POLARIS SIF·한국반도체학술대회(KCS)·삼성휴먼테크논문대상 수상작 11건 분석, 패턴 정리, 최초 후보(GAA+HKMG) 기각 근거, 방향 A(시트별 차등 도핑) 대 방향 B(NCFET) 비교. **현재 최종 주제(다중 에너지 Vt-Implant)의 원형이 되는 문서.**
-- 수상작 원본 링크
-  - [POLARIS SIF 2025 수상작품 전체보기](https://polargate.disu.ac.kr/contest/SIF2025/winner?sc=y) (로그인 필요)
-  - [전자산란효과(Electron scattering)를 이용한 FET 전류 제어 방식 제안](https://polargate.disu.ac.kr/contest/SIF2025/winner?applyidx=255) — 사업단장상
-  - [Multiple-energy ion implantation을 이용한 9.6nm BCAT 설계](https://polargate.disu.ac.kr/contest/SIF2025/winner?applyidx=258) — 사업단장상. 우리가 최종 채택한 "다중 에너지 임플란트" 접근과 같은 장르의 수상 사례.
-  - [FinFET Architecture 기반 TFET 구조 제안](https://polargate.disu.ac.kr/contest/SIF2025/winner?applyidx=232)
-  - [POLARIS SIF 2023 수상작품 전체보기](https://polargate.disu.ac.kr/contest/SIF2023/winner?sc=y) (로그인 필요)
-  - [a-IGZO 전기적 특성 측정](https://polargate.disu.ac.kr/contest/SIF2023/winner?applyidx=84)
-  - [KCS 2025 논문상 전체 목록](http://kcs.cosar.or.kr/2025/awards-2025.jsp)
-  - [제32회 삼성휴먼테크논문대상 수상자 인터뷰](https://news.samsungsemiconductor.com/kr/미래를-설계하는-젊은-과학도들이-모인-현장-수상자-2)
+- 오픈 액세스 — 로그인 없이 PDF 다운로드 가능
+- PMC 미러: https://pmc.ncbi.nlm.nih.gov/articles/PMC9505224/
+- **역할**: 우리 구조 치수·시뮬레이션 조건의 출처
+- **내용**: Sentaurus TCAD로 구현한 BCAT를 대상으로 리세스-게이트길이 비(AR), 리세스 깊이, 접합 깊이, 핀 폭, **핀 필렛 반경(Rfillet)**을 변수로 Vth·SS·Ion/Ioff·DIBL을 분석
+- **우리와의 관계**: 이 논문이 개별 변수로만 다룬 '코너 라운딩'을 '접합 도핑'과 결합해 2차원으로 확장하는 것이 우리 기여
 
-## 베이스라인 논문 (BCAT — 현재 채택 경로)
+**핵심 수치**
 
-- ["Simulation Study: The Impact of Structural Variations on the Characteristics of a Buried-Channel-Array Transistor (BCAT) in DRAM,"](https://www.mdpi.com/2072-666X/13/9/1476) *Micromachines*, 2022, 13(9), 1476. (오픈 액세스) — Sentaurus TCAD로 구현된 BCAT 구조·수치 baseline. Lgate 20nm, Drecess 120nm(AR≈6.0), 게이트 산화막 5nm, 텅스텐 게이트 일함수 4.8eV. 리세스-to-게이트길이 비, 깊이, 접합깊이, 핀 폭, **핀 필렛 반경(Fin Fillet Radius)**을 변수로 Vth/SS/Ion-off/DIBL을 분석 — 우리 코너 라운딩 변수의 baseline이자 겹침 확인 대상.
-- ["The breakthrough in data retention time of DRAM using Recess-Channel-Array Transistor(RCAT) for 88nm feature size and beyond"](https://www.researchgate.net/publication/4028293_The_breakthrough_in_data_retention_time_of_DRAM_using_Recess-Channel-Array_TransistorRCAT_for_88_nm_feature_size_and_beyond) — RCAT/BCAT 계열의 원조 논문. Elevated Source/Drain(ESD) 구조가 접합부 저도핑으로 전계·누설전류·산포를 낮춰 리텐션을 개선한다는 근거. 우리 접합 저도핑 변수의 근거 논문.
-- ["Saddle-fin Cell Transistors with Oxide Etch Rate Control by Using Tilted Ion Implantation (TIS-Fin) for Sub-50-nm DRAMs,"](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART001428889) *J. Korean Physical Society*, 2010. — 틸트 임플란트로 새들핀 균일도(Vth 산포 <100mV)를 개선한 선행 사례. RDF 트레이드오프는 다루지 않음.
-- ["Variation-aware analysis of buried-channel-array transistors (BCATs) in scaled DRAM: insights from 3D quasi-atomistic simulations"](https://www.researchgate.net/publication/386265159_Variation-aware_analysis_of_buried-channel-array_transistors_BCATs_in_scaled_DRAM_insights_from_3D_quasi-atomistic_simulations) (2024) — 새들핀-소스/드레인 코너 곡률(rounding)이 Vth·전류·산포에 미치는 영향을 3D 원자단위 모델로 분석. **우리 "코너 라운딩" 축과 가장 가까운 인접 연구** — 완전히 겹치진 않으나 이 구석이 이미 상당히 채워져 있음을 보여주는 근거.
-- ["Design Strategies for BCAT Structures: Enhancing DRAM Reliability and Mitigating Row Hammer Effect,"](https://www.mdpi.com/2079-9292/14/3/499) *Electronics*, 2025. — 2025년에도 BCAT 구조·신뢰성 최적화가 활발히 연구되고 있음을 보여주는 최신 사례.
+| 파라미터 | 값 |
+|---|---|
+| 물리적 게이트 길이 (Lgate) | 20 nm |
+| 리세스 깊이 (Drecess) | 120 nm (AR = Drecess/Lgate ≈ 6.0) |
+| 게이트 산화막 두께 | 5 nm (리세스 영역 + 새들핀 피복) |
+| 게이트 재료 / 일함수 | 텅스텐(W) / 4.8 eV |
+| 핀 필렛 반경 (Rfillet) | 공칭 1.0 = 반원형(완전 라운딩) |
+| 채널 구조 | 새들핀 — Si₃N₄ 절연층 아래 매립, W 게이트 + SiO₂ 피복 |
 
-> **정직한 겹침 인정**: 코너 라운딩(Fin Fillet Radius)과 Elevated S/D 저도핑을 "하나로 묶어 통합 설계"한 논문은 확인되지 않았으나, 두 축 각각은 위 논문들로 이미 상당히 다뤄지고 있다. "완전 무경쟁"이 아니라 "이미 알려진 두 기법의 우리 조합·검증"이라는 점을 발표 자료에서도 정직하게 밝힐 것.
+**읽는 법**: 처음에는 그림(구조 단면도, Id-Vg, 파라미터별 그래프)만 훑어볼 것. [DRAM 기초 학습자료](reports/dram-basics.md)를 먼저 읽었다면 그림만으로도 상당 부분 이해된다. 특히 Rfillet 관련 부분을 주의 깊게 볼 것.
 
-## 검토 후 기각한 소자군 (2026-07-30 전면 재검토)
+## 2. 접합 저도핑 · GIDL · 리텐션 근거
 
-GAA 나노시트 계열 전체를 폐기하고 소자군을 새로 검토하며 기각한 후보들.
+**[R1]** J. Y. Kim et al., ["The breakthrough in data retention time of DRAM using Recess-Channel-Array Transistor(RCAT) for 88nm feature size and beyond,"](https://www.researchgate.net/publication/4028293_The_breakthrough_in_data_retention_time_of_DRAM_using_Recess-Channel-Array_TransistorRCAT_for_88_nm_feature_size_and_beyond) Symp. VLSI Technology.
 
-- **BSPDN(후면 전력망) 백사이드 컨택 저항 비교**: 이미 양산 중(Intel 18A PowerVia)이라 양산성은 최고 수준이나, 관련 문헌이 대부분 SEMulator3D/Global TCAD Solutions 툴 기반이라 Sentaurus 구현 확실성이 낮음.
-- **SiC 트렌치 MOSFET / GaN HEMT 파워 반도체**: 양산성·Sentaurus 문헌 모두 우수하나, 실제 수상작 11건(POLARIS SIF·KCS·삼성휴먼테크) 재검토 결과 파워 반도체 카테고리는 전례가 전혀 없어 수상 패턴 기준에서 기각.
-- **3D NAND 채널홀 Vth 편차 / 워드라인 유전체 엔지니어링 / 셀렉트게이트 다중 워크펑션**: Sentaurus 구현 사례·수상 전례 모두 있으나, 셀-투-셀 간섭 유전체 엔지니어링(2021 PMC 논문)·에어갭 워드라인 분리(imec 2024-2025)·셀렉트게이트 다중 WF(특허 2014, 학회논문 2019) 등 인접 축이 이미 두텁게 존재.
-- **eMRAM(STT-MRAM)**: 액세스 트랜지스터는 Sentaurus로 가능하나 MTJ(스핀토크 자화 스위칭)가 Sentaurus 표준 반도체 물리 엔진 밖의 자성 물리라 실제 기여 범위 축소 위험.
-- **CMOS 이미지센서 DTI(Deep Trench Isolation) 크로스토크 억제 / ESD 보호소자(ggNMOS)**: 둘 다 양산성·Sentaurus 적합성은 우수하나 2011년부터 최근까지 지속적으로 논문화된 성숙 분야.
-- **Process-aware Device Design(변동성 고려 설계)**: 특정 소자를 지정하지 않은 방법론 제안이고, 사실상 RDF 등 변동성 정량화 문제로 재귀결되어 이번 기준(RDF 배제)과 충돌.
+- RCAT/BCAT 계열의 원조 논문
+- **역할**: Elevated Source/Drain(ESD) 구조의 접합부 저도핑이 전계를 낮춰 드레인 누설과 그 산포를 줄이고 리텐션을 개선한다는 근거 — 우리 두 번째 변수(접합 도핑)의 물리적 정당성
 
-## 폐기된 GAA 나노시트 경로 (참고용 보존)
+**[R2]** ["Saddle-fin Cell Transistors with Oxide Etch Rate Control by Using Tilted Ion Implantation (TIS-Fin) for Sub-50-nm DRAMs,"](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART001428889) *J. Korean Physical Society*, 2010.
 
-아래는 GAA 나노시트 계열 진행 중 조사했던 자료. 계열 전체가 폐기됐지만 향후 유사 아이디어 재검토 시 참고용으로 그대로 보존한다.
+- 틸트 임플란트로 새들핀 균일도를 개선(웨이퍼 내 Vth 산포 <100 mV, 양산 S-RCAT 수준)
+- **역할**: '새들핀 + 도핑 제어'라는 접근 계보의 선행 사례. 기법은 우리와 다름(우리는 틸트 임플란트가 아님)
 
-### 베이스라인 논문 (구조·수치·문제 근거)
+## 3. 인접 연구 (겹침 확인용 — 발표 시 정직하게 인용할 대상)
 
-- Loubet, N. et al., ["Stacked nanosheet gate-all-around transistor to enable scaling beyond FinFET,"](https://www.researchgate.net/publication/319035460_Stacked_nanosheet_gate-all-around_transistor_to_enable_scaling_beyond_FinFET) 2017 Symposium on VLSI Technology, pp. T230-T231.
-- ["Optimization of Structure and Electrical Characteristics for Four-Layer Vertically-Stacked Horizontal Gate-All-Around Si Nanosheets Devices,"](https://www.mdpi.com/2079-4991/11/3/646) Nanomaterials 2021, 11(3), 646.
-- Vardhan, P.H. et al., ["Threshold Voltage Variability in Nanosheet GAA Transistors,"](https://www.researchgate.net/publication/335194719_Threshold_Voltage_Variability_in_Nanosheet_GAA_Transistors) IEEE Trans. Electron Devices, 2019.
-- Han, Y. et al., ["Impact of Process Variability on Threshold Voltage in Vertically-Stacked Nanosheet TFET,"](https://link.springer.com/article/10.1007/s12633-022-02256-8) *Silicon*, 2023.
+**[N1]** ["Variation-aware analysis of buried-channel-array transistors (BCATs) in scaled DRAM: insights from 3D quasi-atomistic simulations"](https://www.researchgate.net/publication/386265159_Variation-aware_analysis_of_buried-channel-array_transistors_BCATs_in_scaled_DRAM_insights_from_3D_quasi-atomistic_simulations) (2024)
 
-### RDF 트레이드오프 및 WFM/다이폴 비교 근거
+- 새들핀-소스/드레인 코너 곡률(rounding)이 Vth·전류·산포에 미치는 영향을 3D 준원자단위 모델로 분석
+- **우리 '코너 라운딩' 축과 가장 가까운 인접 연구.** 발표 시 반드시 인용하고, 우리와의 차이(우리는 접합 도핑과의 **결합·상호작용**을 본다)를 명시할 것
 
-- ["Guideline for balancing threshold voltages in gate-all-around CMOS by controlling the thickness of the work function metal under tight nanosheet spacing,"](https://iopscience.iop.org/article/10.35848/1347-4065/ae3835) 2026.
-- Random Dopant Fluctuation(RDF)과 채널 도핑 농도의 관계: σVth가 도핑 농도의 세제곱근~네제곱근에 비례해 증가 (위키피디아 "Random dopant fluctuation" 및 다수 IEEE TED 논문).
-- Multi-metal dipole doping / differential interfacial layer thickness 관련 특허 다수 (예: US 11393725 등).
+**[N2]** ["Design Strategies for BCAT Structures: Enhancing DRAM Reliability and Mitigating Row Hammer Effect,"](https://www.mdpi.com/2079-9292/14/3/499) *Electronics*, 2025, 14(3), 499.
 
-### 검토 후 기각한 대안 (GAA 경로 내)
+- BCAT 구조 설계와 Row Hammer를 연결한 최신 연구. 기법은 air-gap이라 우리와 겹치지 않음
+- **역할**: 'BCAT 구조 설계 → Row Hammer 내성'이라는 논리 연결의 선례
 
-- **GAA + NCFET(강유전체 게이트)**: 이미 다수 Sentaurus TCAD 논문 존재, Sentaurus 수렴 문제 실재.
-- **Air-gap 내부 스페이서 / Hybrid(Dual-k) 스페이서 / 진공 스페이서**: 다수 특허·논문 존재 — 검토한 대안 중 겹침이 가장 심함.
-- **DRAM + 듀얼 워크펑션 게이트**: IEDM 2023 등 산업 논문이 이미 적용.
-- **GAA 파라미터 차등화 계열 5건(비대칭 Dual-k 스페이서, 하이브리드 스페이서, 레이어별 워크펑션, 순차 스페이서 형성, 레이어별 게이트스택)**: 전부 검색 결과 기존 논문·특허와 겹침 확인 후 기각 — "GAA 레이어를 다르게 만든다"는 뼈대 자체(도핑·워크펑션·유전체·스페이서·스트레스 축 전부)가 이미 개별 논문화됨.
+**[N3]** ["Mitigating Pass Gate Effect in Buried Channel Array Transistors Through Buried Oxide Integration,"](https://www.mdpi.com/2076-3417/14/22/10348) *Applied Sciences*, 2024, 14(22), 10348.
 
-### 구조 코드 분석 (팀 분석 노트)
+- 워드라인 간 간섭(pass gate effect) 관련. 우리 주제와 직접 겹치지 않으나 BCAT 신뢰성 이슈 전반의 배경
 
-학교 Sentaurus 라이선스(AdvancedTransportPackage)의 예제 스크립트 3종을 팀이 직접 분석한 노트. GAA 나노시트 구조 생성 코드라 BCAT 구조와는 직접 재사용은 어려우나, Sentaurus SProcess 문법 학습 자료로는 유효.
+**[N4]** ["Partial Isolation Type Buried Channel Array Transistor (Pi-BCAT) for a Sub-20 nm DRAM Cell Transistor,"](https://www.mdpi.com/2079-9292/9/11/1908) *Electronics*, 2020.
 
-- [NSFET 구조 코드 분석 및 적용 방안](reports/nsfet-code-analysis.md)
-- [3개 구조 코드 비교분석](reports/three-codes-comparison.md)
-- [코드 B·C 줄별 분석 비교](reports/code-bc-line-analysis.md)
+- sub-20nm BCAT 구조 변형 사례. 구조 설계 자유도의 참고 자료
 
-## 이론 학습
+## 4. 물리 이해용 (GIDL · Row Hammer)
 
-- (정리 예정) BCAT 구조·코너 라운딩·Elevated S/D 공정 이론 자료. 새로 작성 예정.
+- **GIDL 메커니즘**: GIDL은 게이트·산화막·드레인이 만나는 **코너에 극도로 국소화된 표면 현상**이며, 강한 수직·수평 전계가 겹쳐 밴드가 급격히 휘고 밴드간 터널링(BTBT)이 발생한다. 이 국소성이 "코너 형상을 바꾸면 GIDL을 바꿀 수 있다"는 우리 가설의 물리적 근거다.
+- **전계 집중(Field Crowding)**: 뾰족한 곳에 전기장이 몰리는 현상. 곡률 반경을 키우면(라운딩) 전기장이 분산된다. 도핑이 균일해도 코너 Vth가 중앙 채널부와 달라지는 원인.
+- **Row Hammer**: 공격 대상 행의 워드라인을 반복 활성화하면 기판(p-well)에 순간적 강전계가 생겨 전자가 주입되고, 이것이 확산해 인접 셀의 저장 전하를 상쇄시켜 데이터를 뒤집는다. **주입이 시작되는 지점이 GIDL 발생 지점과 동일**하다.
+
+> 이 세 가지의 상세 설명은 [DRAM 기초 학습자료](reports/dram-basics.md) 5장·7장 참고.
+
+## 5. 툴 레퍼런스
+
+**[T1]** Sentaurus Structure Editor User Guide — 3D 구조 생성, Scheme 스크립팅, **filleting / 3D edge blending / chamfering**
+
+> **중요**: BCAT 같은 3D 리세스 구조는 순수 SProcess만으로 만들기 어렵고, 관련 논문들도 SDE로 구조를 만든다. 일반적 흐름은 2D 공정을 SProcess로 돌린 뒤 3D 형상 구성·도핑 컴파일을 SDE로 수행하는 것이다.
+> **결정적으로 유리한 점**: SDE가 filleting(모서리 둥글리기)을 공식 지원하므로, 우리 핵심 변수인 코너 라운딩을 표준 기능으로 직접 파라미터화할 수 있다.
+
+**[T2]** Sentaurus Device User Guide — BTBT 모델 계열(**Schenk / Hurkx / Dynamic Nonlocal Path**) 및 GIDL 관련 물리 모델 설정
+
+> 어느 모델을 쓸지 결정하고 근거를 기록할 것. 관련 논문들은 주로 비국소(nonlocal) 경로 모델을 사용한다.
+
+**[T3]** [TCAD Sentaurus Tutorial (외부 공개 자료)](https://ghzphy.github.io/Sentaurus_Training/sde/sde_menu.html) — SDE 3D 구조 생성 및 파라미터화 실습용. 특히 "Three-Dimensional Structures", "Scripting and Parameterization" 항목. **구조 담당자 필수.**
+
+**[T4]** 학교 라이선스 예제 라이브러리 — **DRAM/BCAT/리세스 게이트 관련 예제 존재 여부 미확인. 최우선 확인 과제.** 웹 검색으로는 Synopsys Applications Library 내 BCAT 전용 예제를 확인하지 못했으나, 없더라도 [B1]이 치수를 모두 공개하므로 프로젝트는 진행 가능하다.
+
+## 6. 경진대회 관련
+
+- [수상작 분석 및 추천 주제](reports/award-analysis-and-topic-selection.md) — POLARIS SIF·KCS·삼성휴먼테크 수상작 11건 분석, 패턴 정리. **DRAM 셀 트랜지스터가 수상 카테고리임을 확인한 근거 문서**
+
+**직접 관련된 수상작**
+
+- [Multiple-energy ion implantation을 이용한 최적의 9.6nm BCAT 설계](https://polargate.disu.ac.kr/contest/SIF2025/winner?applyidx=258) — SIF 2025 **사업단장상**, 중앙대
+  - 같은 소자(BCAT)로 최고상을 받은 사례. 공정 파라미터 최적화 접근이 수상 가능함을 보여주는 근거인 동시에 **우리가 차별화해야 할 대상**
+  - 로그인 후 원문을 확인해 우리 주제와의 차이를 명확히 해둘 것 (**미확인 상태**)
+- [KCS 2025 논문상 전체 목록](http://kcs.cosar.or.kr/2025/awards-2025.jsp) — "Enhancement of On-Current in RCAT Structures and Improving ΔV of DRAM with Dual-k Spacer Design"(중앙대) 포함. DRAM 셀 트랜지스터 구조 최적화가 학회 단위에서도 인정받은 사례
+- [4F2 DRAM 구조를 위한 수직 트랜지스터 제안 및 TCAD 시뮬레이션](https://polargate.disu.ac.kr/contest/SIF2023/winner?sc=y) — SIF 2023 장려상. DRAM 셀 구조 최적화에 TCAD를 활용한 사례
+
+**기타 수상작 링크**
+
+- [POLARIS SIF 2025 수상작품 전체보기](https://polargate.disu.ac.kr/contest/SIF2025/winner?sc=y) (로그인 필요)
+- [POLARIS SIF 2023 수상작품 전체보기](https://polargate.disu.ac.kr/contest/SIF2023/winner?sc=y) (로그인 필요)
+- [제32회 삼성휴먼테크논문대상 수상자 인터뷰](https://news.samsungsemiconductor.com/kr/미래를-설계하는-젊은-과학도들이-모인-현장-수상자-2)
+
+## 7. 팀 내부 문서
+
+- [프로젝트 통합 기획서](reports/project-plan.md) — 주제·이유·설계 방향·확인 사항·결론 전략
+- [DRAM 기초 학습자료](reports/dram-basics.md) — 배경지식 0 기준 학습 자료
+- [주제 선정 이력](topic-selection-history.md) — 검토·기각한 19개 후보 아카이브 (폐기된 GAA 계열 참고문헌 포함)

@@ -1,51 +1,115 @@
-# DRAM BCAT 코너·접합 결합 최적화 경진대회 프로젝트
+# DRAM BCAT 코너 라운딩 × Elevated S/D 접합 결합 최적화
 
-차세대반도체 경진대회(소자/공정 부문) 출품 프로젝트. DRAM 셀 접근 트랜지스터인 BCAT(Buried Channel Array Transistor)의 새들핀 코너 라운딩(Fin Fillet Radius, 구조/식각 엔지니어링)과 Elevated Source/Drain 접합 도핑 저감을 하나로 묶어 최적화해, GIDL(Gate-Induced Drain Leakage)과 리텐션 특성을 개선한다. 두 기법 각각은 문헌에 존재하지만 하나로 묶어 통합 검증한 사례는 확인되지 않아, "완전한 신규"가 아니라 "이미 알려진 기법의 우리 조합·검증"으로 정직하게 포지셔닝한다.
+차세대반도체 경진대회(POLARIS SIF) 소자/공정 부문 출품 프로젝트.
+
+DRAM 셀 접근 트랜지스터인 **BCAT(Buried Channel Array Transistor)**의 새들핀 코너 라운딩(Fin Fillet Radius)과 Elevated Source/Drain 접합 도핑을 **결합 최적화**하여, GIDL·리텐션·Row Hammer 내성 관점에서 두 기법의 **상호작용을 규명**한다.
 
 - **팀 구성**: 3인
 - **지원 분야**: ① 소자/공정
-- **시뮬레이션 툴**: Synopsys Sentaurus TCAD (SProcess / SDevice / SVisual)
+- **시뮬레이션 툴**: Synopsys Sentaurus TCAD (Structure Editor / SProcess / SDevice / SVisual)
+- **제출 마감**: 2026년 1월 15일 (POLARIS SIF 2026 기준, 확인 필요)
 
-> **주제 전환 이력**: 이 프로젝트는 원래 "GAA-TFET(Line-Tunneling + 비대칭 도핑)"으로 시작해 "GAA 시트별 차등 Halo Doping" → "다중 에너지 Vt-Implant" → "WFM 비교/초협소 간격 검증"까지 GAA 나노시트 계열로 여러 차례 다듬었으나, RDF 정량화 가능 여부가 불확실해지고 팀 내부에서도 양산성에 대한 이견이 제기되어 **GAA 나노시트 계열 전체를 폐기**했다. 이후 수상작 분석·심사 기준·논문 중복 여부·양산 가능성 네 기준으로 소자군을 완전히 새로 검토해 **DRAM BCAT**로 최종 전환했다. 자세한 경위는 [`docs/devlog.md`](docs/devlog.md)의 2026-07-30 항목(전체) 참고.
+## 핵심 질문
+
+> 코너 라운딩과 접합 도핑 저감은 각각 GIDL을 줄이는 방향으로 알려져 있다.
+> 이 둘을 함께 최적화하면 개별 최적화의 단순 합보다 더 큰 개선(시너지)이 있는가,
+> 아니면 한쪽이 다른 쪽의 최적점을 이동시키는 트레이드오프 관계가 있는가?
+
+결과물은 두 개의 1차원 최적값 표가 아니라, **두 변수를 격자로 함께 스윕한 2차원 등고선**이다. 이것이 개별 논문에는 없는 우리만의 결과물이다.
+
+## 왜 이 주제인가
+
+| 기준 | 근거 |
+|---|---|
+| **양산성** | BCAT는 삼성·SK하이닉스가 sub-20nm 노드로 이미 양산 중. "실제로 되는가" 논쟁이 없음 |
+| **수상 패턴** | DRAM 셀 트랜지스터는 SIF 2023(4F2 수직 트랜지스터), KCS 2025(RCAT Dual-k Spacer)에서 이미 두 차례 수상한 카테고리 |
+| **완주 가능성** | Sentaurus로 구현된 baseline 논문(MDPI 2022)이 구조 치수를 모두 공개. RDF 등 통계 시뮬레이션 불필요 — 결정론적 지표만으로 결론 도출 가능 |
+| **독창성** | 코너 라운딩·접합 저도핑 개별 연구는 존재하나, 두 기법을 결합해 상호작용을 검증한 사례는 확인되지 않음 |
+
+> **정직한 겹침 인정**: 이 주제는 "완전히 새로운 기법의 발명"이 아니라 **"이미 알려진 두 기법을 결합했을 때의 상호작용을 직접 검증"**하는 것이다. 개별 기법의 문헌적 출처는 발표 자료에서도 명시적으로 인용한다.
+
+## 문제 배경 (요약)
+
+BCAT는 단채널 효과를 피하려고 채널을 기판 아래로 파고 핀(saddle-fin) 형태를 결합한 구조다. 채널 길이 확보라는 이득을 얻었지만, 대가로 **핀에 각진 코너**가 생겼다.
+
+- 도핑이 균일해도 코너에서 전계가 기하학적으로 집중된다 (field crowding)
+- 게이트·산화막·드레인이 만나는 코너에서 밴드가 급격히 휘어 **밴드간 터널링(BTBT)**이 일어난다 → 이것이 **GIDL**
+- GIDL 누설은 셀 커패시터의 전하를 새어나가게 해 **리텐션**을 떨어뜨리고, 리프레시 주기를 짧게 만들어 전력을 소모시킨다
+- 같은 코너 전계는 **Row Hammer**(인접 워드라인 반복 활성화로 옆 셀 데이터를 뒤집는 DRAM 보안 취약점)의 전자 주입 메커니즘과 위치·조건을 공유한다
+
+자세한 배경은 [DRAM 기초 학습자료](docs/reports/dram-basics.md) 참고.
+
+## 베이스라인
+
+**J. Kim et al., "Simulation Study: The Impact of Structural Variations on the Characteristics of a Buried-Channel-Array Transistor (BCAT) in DRAM," _Micromachines_, 2022, 13(9), 1476.**
+→ https://www.mdpi.com/2072-666X/13/9/1476 (오픈 액세스, 로그인 불필요)
+
+| 파라미터 | 값 |
+|---|---|
+| 물리적 게이트 길이 (Lgate) | 20 nm |
+| 리세스 깊이 (Drecess) | 120 nm (AR ≈ 6.0) |
+| 게이트 산화막 두께 | 5 nm |
+| 게이트 재료 / 일함수 | 텅스텐(W) / 4.8 eV |
+| 핀 필렛 반경 (Rfillet) | 공칭 1.0 (= 반원형) |
+| 채널 형상 | 새들핀 — Si₃N₄ 절연층 아래 매립, W 게이트 + SiO₂ 피복 |
+
+이 논문을 베이스라인으로 삼은 이유: (1) Sentaurus TCAD로 직접 구현되어 우리 툴과 동일하다. (2) 구조 치수를 모두 공개해 재현이 가능하다. (3) 우리 첫 번째 스윕 변수인 핀 필렛 반경을 이미 변수로 다루고 있어 직접 대조·검증할 수 있다.
 
 ## 진행 상황
 
 | 단계 | 상태 | 비고 |
 |---|---|---|
-| 1차 주제 선정 (GAA-TFET) | ✅ 완료 → 폐기 | baseline 논문과 구조·수치 중복 발견으로 재검토 |
-| GAA 나노시트 계열 반복 개선 | ✅ 완료 → 전체 폐기 | Halo Doping → 다중 에너지 Vt-Implant → WFM 비교까지 진행했으나 RDF 정량화 가능 여부 불확실 + 팀 내 양산성 이견으로 계열 전체 폐기 |
-| 소자군 전면 재검토 | ✅ 완료 | 수상작 분석·심사기준·논문중복 배제·양산가능성 4기준으로 BSPDN/SiC/GaN/3D NAND/eMRAM/DRAM 등 교차검증 |
-| GAA 파라미터 차등화 대안 5건 재검토 | ✅ 완료 | 비대칭/하이브리드 스페이서, 레이어별 워크펑션·게이트스택, 순차 스페이서 형성 — 전부 기존 문헌과 중복 확인돼 기각 |
-| 최종 주제 확정 | ✅ 완료 | DRAM BCAT 코너 라운딩 + Elevated S/D 접합 결합 최적화 (GIDL·리텐션 개선) |
-| 툴 환경 확인 | ✅ 완료 (GAA 시절 확보분) | 학교 라이선스 AdvancedTransportPackage 예제 3종 — BCAT 구조 재현 시 참고용으로 재검토 필요 |
-| Baseline 구조 구현 | ⬜ 예정 | MDPI 2022 BCAT 논문 수치(Lgate 20nm, Drecess 120nm, AR 6.0, 게이트산화막 5nm, W게이트 WF 4.8eV) 기반, Sentaurus 재현 |
-| 코너·접합 결합 DoE 설계 | ⬜ 예정 | Fin Fillet Radius × Elevated S/D 접합깊이·도핑농도 스윕 계획 수립 |
-| 전기적 특성 추출 방법 확정 | ⬜ 예정 | SDevice에서 Vth, SS, GIDL, DIBL 추출 |
-| 결합 최적화 시너지 정량화 | ⬜ 예정 | 개별 최적화 대비 결합 최적화의 추가 개선분 — 우리만의 기여 포인트 |
-| 결과 정리·발표자료 | ⬜ 예정 | "완전 신규"가 아니라 "우리가 직접 검증한 조합"이라는 서사로 정직하게 구성 |
-
-## 주제 선정 배경 (요약)
-
-팀원 포트폴리오(TCAD PMOS 공정 최적화, 30/60nm NMOS Short Channel Effect 개선, QCLAS 반도체공학회 발표, LAS 공정 분석 프로젝트)를 바탕으로 소자/공정 분야 후보를 검토했다. POLARIS SIF·한국반도체학술대회(KCS)·삼성휴먼테크논문대상 수상작 11건을 분석한 결과, 1차 후보였던 "GAA + HKMG 최적화"는 이미 산업 표준 조합이라 독창성이 부족하다고 판단해 기각했다. 이후 GAA 나노시트 계열(TFET → Halo Doping → 다중 에너지 Vt-Implant → WFM 비교)로 여러 차례 방향을 다듬었으나, 핵심 결론 도출에 필요한 RDF 정량화가 학교 라이선스·컴퓨팅 자원으로 실제 가능한지 불확실해졌고, 팀 내부에서도 "양산 불가능할 수도 있는 주제"라는 회의적 시각이 제기되었다. 이에 기존 투입 노력과 무관하게 소자군 전체를 처음부터 재검토했다. 새 기준은 (1) 수상작 분석 기반 (2) 심사 기준(완성도·독창성·공학적 파급효과·발표) 기반 (3) 기존 단일 논문과 완전히 동일한 구조 배제 (4) 실제 양산 가능한 조건일 것, 네 가지였다. BSPDN(툴 미스매치), SiC/GaN 파워반도체(수상 전례 없음), 3D NAND(구조 복잡도), eMRAM(MTJ가 Sentaurus 표준 물리 밖) 등을 검토·기각했고, GAA 나노시트 파라미터 차등화 계열(비대칭/하이브리드 스페이서, 레이어별 워크펑션·게이트스택 등 5건)도 전부 기존 문헌과 중복 확인돼 기각했다. 최종적으로 DRAM 셀 트랜지스터(BCAT)가 SIF 2023·KCS 2025에서 이미 두 차례 수상한 카테고리이고, 이미 양산 중이며, Sentaurus 구현 baseline 논문(MDPI 2022)이 존재한다는 점에서 **BCAT의 코너 라운딩 + Elevated S/D 접합 결합 최적화**로 확정했다. 두 기법 개별로는 문헌에 존재하나 결합 검증 사례는 확인되지 않아 "완전 신규"는 아니라는 점을 정직하게 인정하고, 더 이상의 여백 찾기는 중단하고 실행 단계로 넘어가기로 했다. 자세한 과정은 [`docs/devlog.md`](docs/devlog.md) 참고.
+| 주제 선정 및 소자군 전면 검토 | ✅ 완료 | 19개 후보 검토·기각 → BCAT 확정 ([이력](docs/topic-selection-history.md)) |
+| 프로젝트 기획서 작성 | ✅ 완료 | [project-plan.md](docs/reports/project-plan.md) |
+| 팀 학습자료 작성 | ✅ 완료 | [dram-basics.md](docs/reports/dram-basics.md) |
+| 팀 공통 배경학습 | ⬜ 예정 | 3인 전원 DRAM 기초 + 베이스라인 논문 정독 |
+| 학교 라이선스 예제 확인 | ⬜ 예정 | **최우선** — DRAM/BCAT/리세스 게이트 예제 존재 여부 |
+| SDE Scheme 스크립팅 학습 | ⬜ 예정 | 3D 구조 생성, filleting 기능 습득 |
+| Baseline 구조 재현 | ⬜ 예정 | MDPI 2022 치수로 BCAT 3D 구조 생성, SVisual로 논문 그림과 대조 |
+| Baseline 전기특성 캘리브레이션 | ⬜ 예정 | BTBT 모델 적용, Vth·SS·GIDL 추출 후 논문값과 비교 |
+| Rfillet 단독 스윕 | ⬜ 예정 | 1차원 경향 확인 |
+| 접합 도핑 단독 스윕 | ⬜ 예정 | 1차원 경향 확인 |
+| 2차원 DoE 실행 | ⬜ 예정 | Workbench로 격자 자동 실행 (25~49점 규모) |
+| 상호작용 분석 | ⬜ 예정 | 등고선 분석 — 시너지/트레이드오프 판정 |
+| 결합 최적화 이득 정량화 | ⬜ 예정 | 개별 최적화 대비 추가 개선분 = 우리 기여의 크기 |
+| Row Hammer 서사 확장 | ⬜ 예정 | 문헌 기반 서술적 확장 (직접 시뮬레이션 아님) |
+| 결과 정리·발표자료 | ⬜ 예정 | 2차원 등고선을 시각적 하이라이트로 배치 |
 
 ## 저장소 구조
 
 ```
-gaa-tfet-competition/
-├── README.md
+competition/
+├── README.md                          # 현재 문서 — 프로젝트 개요
 ├── docs/
-│   ├── devlog.md              # 날짜별 진행 로그
-│   ├── devlog-template.md     # 새 로그 작성용 템플릿
-│   └── references.md          # 참고 논문·수상작 링크
+│   ├── devlog.md                      # 날짜별 진행 로그
+│   ├── devlog-template.md             # 새 로그 작성용 템플릿
+│   ├── references.md                  # 참고 논문·자료 링크
+│   ├── topic-selection-history.md     # 주제 선정 이력 (검토·기각한 19개 후보 아카이브)
+│   └── reports/
+│       ├── project-plan.md            # 프로젝트 통합 기획서 (설계 방향·실행 계획·결론 전략)
+│       ├── dram-basics.md             # DRAM 기초 학습자료 (배경지식 0 기준)
+│       └── award-analysis-and-topic-selection.md   # 경진대회 수상작 분석
 ├── tcad/
-│   ├── structure/              # SDE/SProcess 구조 스크립트
-│   ├── sdevice/                 # 물리·바이어스 명령 파일
-│   └── results/                 # Id-Vg 그래프, SVisual 캡처
-├── figures/                     # 발표·보고서용 이미지
-└── deliverables/                # 최종 포스터·발표자료
+│   ├── structure/                     # SDE Scheme / SProcess 구조 스크립트
+│   ├── sdevice/                       # 물리·바이어스 명령 파일
+│   └── results/                       # Id-Vg 그래프, SVisual 캡처
+├── figures/                           # 발표·보고서용 이미지
+└── deliverables/                      # 최종 포스터·발표자료
 ```
 
-## 주의사항
+## 팀 역할 분담 (제안)
 
+| 역할 | 담당 범위 |
+|---|---|
+| **A — 구조** | SDE Scheme 스크립트, BCAT 3D 구조 생성, 필렛 반경 파라미터화, 메쉬 품질 관리 |
+| **B — 소자·물리** | SDevice 물리 모델(BTBT) 설정, Id-Vg 및 GIDL 추출, 베이스라인 캘리브레이션 |
+| **C — 분석·문헌** | DoE 설계, 등고선 분석, 문헌 조사(Row Hammer·인접 연구), 발표자료 및 보고서 |
+
+> 역할을 나누기 전에 3인 모두 [DRAM 기초 학습자료](docs/reports/dram-basics.md)를 공통 학습할 것. 특히 GIDL이 왜 코너에서 생기는지를 셋 다 이해해야 결과 해석에서 말이 맞는다.
+
+## 작업 규칙
+
+- **문서는 전부 Markdown으로 작성한다.** GitHub에서 링크를 클릭하면 바로 읽히도록 하기 위함이며, `.docx`는 저장소에 커밋하지 않는다.
 - `.tdr` 등 대용량 구조/메시 파일은 `.gitignore`로 제외하고, 그래프·캡처 이미지와 코드·로그 위주로 커밋한다.
-- 학교 Sentaurus 라이선스의 예제 코드(Applications_Library, AdvancedTransportPackage)를 그대로 올리지 않는다. 팀이 직접 작성·수정한 부분 위주로 커밋하고, 원본 예제는 출처만 표기한다.
+- 학교 Sentaurus 라이선스의 예제 코드를 그대로 올리지 않는다. 팀이 직접 작성·수정한 부분 위주로 커밋하고, 원본 예제는 출처만 표기한다.
+- 진행 상황은 [`docs/devlog.md`](docs/devlog.md)에 날짜별로 기록한다.
