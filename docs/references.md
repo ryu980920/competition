@@ -1,8 +1,10 @@
 # 참고 자료
 
-> **현재 주제**: DRAM BCAT 코너 라운딩(Fin Fillet Radius) × Elevated Source/Drain 접합 도핑 결합 최적화 — GIDL·리텐션·Row Hammer 내성 관점의 상호작용 규명
+> **현재 주제**: DRAM BCAT DBCAT(질화막 두께) × Elevated Source/Drain 접합 도핑 결합 최적화 — GIDL·리텐션·Row Hammer 내성 관점의 상호작용 규명
 >
 > 이 문서는 **현재 주제에 필요한 자료만** 담는다. 이전에 검토했다가 폐기한 GAA 나노시트 계열의 참고문헌은 [`topic-selection-history.md`](topic-selection-history.md)로 옮겼다.
+>
+> **개정 (2026-08-02)**: 첫 번째 스윕 변수를 Rfillet(핀 필렛 반경, 코너 라운딩)에서 DBCAT(질화막 두께)으로 교체했다. Rfillet은 새들핀 채널 내부의 코너(리세스 바닥 쪽)를 가리키는 변수로, GIDL이 실제 발생하는 표면의 게이트-드레인 겹침과는 다른 위치였다. 경위는 [devlog.md](devlog.md) 참고.
 
 ## 1. 베이스라인 (팀 전원 필독)
 
@@ -11,8 +13,8 @@
 - 오픈 액세스 — 로그인 없이 PDF 다운로드 가능
 - PMC 미러: https://pmc.ncbi.nlm.nih.gov/articles/PMC9505224/
 - **역할**: 우리 구조 치수·시뮬레이션 조건의 출처
-- **내용**: Sentaurus TCAD로 구현한 BCAT를 대상으로 리세스-게이트길이 비(AR), 리세스 깊이, 접합 깊이, 핀 폭, **핀 필렛 반경(Rfillet)**을 변수로 Vth·SS·Ion/Ioff·DIBL을 분석
-- **우리와의 관계**: 이 논문이 개별 변수로만 다룬 '코너 라운딩'을 '접합 도핑'과 결합해 2차원으로 확장하는 것이 우리 기여
+- **내용**: Sentaurus TCAD로 구현한 BCAT를 대상으로 리세스-게이트길이 비(AR), **DBCAT(질화막 두께)**, 접합 깊이, 핀 폭, 핀 필렛 반경을 변수로 Vth·SS·Ion/Ioff·DIBL을 분석. DBCAT은 "게이트-드레인 겹침을 줄여 GIDL을 줄이는" 목적이 명시적으로 서술된 유일한 구조 변수
+- **우리와의 관계**: 이 논문이 개별 변수로만 다룬 'DBCAT'을 '접합 도핑'과 결합해 2차원으로 확장하는 것이 우리 기여
 
 **핵심 수치**
 
@@ -22,10 +24,11 @@
 | 리세스 깊이 (Drecess) | 120 nm (AR = Drecess/Lgate ≈ 6.0) |
 | 게이트 산화막 두께 | 5 nm (리세스 영역 + 새들핀 피복) |
 | 게이트 재료 / 일함수 | 텅스텐(W) / 4.8 eV |
-| 핀 필렛 반경 (Rfillet) | 공칭 1.0 = 반원형(완전 라운딩) |
+| **DBCAT (질화막 두께)** | **공칭 36 nm (24~48 nm 스윕). 우리 첫 번째 스윕 변수** |
+| 핀 필렛 반경 (Rfillet) | 공칭 1.0 = 반원형(완전 라운딩). GIDL과 무관, 소자 신뢰성(산화막 내구성) 관련 변수 — 사용하지 않음 |
 | 채널 구조 | 새들핀 — Si₃N₄ 절연층 아래 매립, W 게이트 + SiO₂ 피복 |
 
-**읽는 법**: 처음에는 그림(구조 단면도, Id-Vg, 파라미터별 그래프)만 훑어볼 것. [DRAM 기초 학습자료](reports/dram-basics.md)를 먼저 읽었다면 그림만으로도 상당 부분 이해된다. 특히 Rfillet 관련 부분을 주의 깊게 볼 것.
+**읽는 법**: 처음에는 그림(구조 단면도, Id-Vg, 파라미터별 그래프)만 훑어볼 것. [DRAM 기초 학습자료](reports/dram-basics.md)를 먼저 읽었다면 그림만으로도 상당 부분 이해된다. 특히 DBCAT 관련 부분을 주의 깊게 볼 것.
 
 ## 2. 접합 저도핑 · GIDL · 리텐션 근거
 
@@ -44,7 +47,7 @@
 **[N1]** ["Variation-aware analysis of buried-channel-array transistors (BCATs) in scaled DRAM: insights from 3D quasi-atomistic simulations"](https://www.researchgate.net/publication/386265159_Variation-aware_analysis_of_buried-channel-array_transistors_BCATs_in_scaled_DRAM_insights_from_3D_quasi-atomistic_simulations) (2024)
 
 - 새들핀-소스/드레인 코너 곡률(rounding)이 Vth·전류·산포에 미치는 영향을 3D 준원자단위 모델로 분석
-- **우리 '코너 라운딩' 축과 가장 가까운 인접 연구.** 발표 시 반드시 인용하고, 우리와의 차이(우리는 접합 도핑과의 **결합·상호작용**을 본다)를 명시할 것
+- DBCAT으로 변수를 교체하며 직접적 겹침은 줄었으나, BCAT 구조 변동성 연구 전반의 인접 문헌으로 발표 시 인용 가치가 있음
 
 **[N2]** ["Design Strategies for BCAT Structures: Enhancing DRAM Reliability and Mitigating Row Hammer Effect,"](https://www.mdpi.com/2079-9292/14/3/499) *Electronics*, 2025, 14(3), 499.
 
@@ -61,18 +64,18 @@
 
 ## 4. 물리 이해용 (GIDL · Row Hammer)
 
-- **GIDL 메커니즘**: GIDL은 게이트·산화막·드레인이 만나는 **코너에 극도로 국소화된 표면 현상**이며, 강한 수직·수평 전계가 겹쳐 밴드가 급격히 휘고 밴드간 터널링(BTBT)이 발생한다. 이 국소성이 "코너 형상을 바꾸면 GIDL을 바꿀 수 있다"는 우리 가설의 물리적 근거다.
-- **전계 집중(Field Crowding)**: 뾰족한 곳에 전기장이 몰리는 현상. 곡률 반경을 키우면(라운딩) 전기장이 분산된다. 도핑이 균일해도 코너 Vth가 중앙 채널부와 달라지는 원인.
+- **GIDL 메커니즘**: GIDL은 게이트·산화막·드레인이 겹치는 **영역에 극도로 국소화된 표면 현상**이며, 강한 수직·수평 전계가 겹쳐 밴드가 급격히 휘고 밴드간 터널링(BTBT)이 발생한다. 이 국소성이 "겹침 자체를 줄이면(DBCAT) GIDL을 바꿀 수 있다"는 우리 가설의 물리적 근거다.
+- **전계 집중(Field Crowding)**: 뾰족한 곳이나 겹침이 큰 곳에 전기장이 몰리는 현상. DBCAT을 키워 겹침 영역을 줄이면 전기장이 완화된다.
 - **Row Hammer**: 공격 대상 행의 워드라인을 반복 활성화하면 기판(p-well)에 순간적 강전계가 생겨 전자가 주입되고, 이것이 확산해 인접 셀의 저장 전하를 상쇄시켜 데이터를 뒤집는다. **주입이 시작되는 지점이 GIDL 발생 지점과 동일**하다.
 
 > 이 세 가지의 상세 설명은 [DRAM 기초 학습자료](reports/dram-basics.md) 5장·7장 참고.
 
 ## 5. 툴 레퍼런스
 
-**[T1]** Sentaurus Structure Editor User Guide — 3D 구조 생성, Scheme 스크립팅, **filleting / 3D edge blending / chamfering**
+**[T1]** Sentaurus Structure Editor User Guide — 3D 구조 생성, Scheme 스크립팅
 
 > **중요**: BCAT 같은 3D 리세스 구조는 순수 SProcess만으로 만들기 어렵고, 관련 논문들도 SDE로 구조를 만든다. 일반적 흐름은 2D 공정을 SProcess로 돌린 뒤 3D 형상 구성·도핑 컴파일을 SDE로 수행하는 것이다.
-> **결정적으로 유리한 점**: SDE가 filleting(모서리 둥글리기)을 공식 지원하므로, 우리 핵심 변수인 코너 라운딩을 표준 기능으로 직접 파라미터화할 수 있다.
+> DBCAT(질화막 두께)은 금속 게이트 에치백 깊이로 결정되는 표준 3D 구조 파라미터라, 특수 filleting(모서리 둥글리기) 기능 없이도 SDE의 일반적인 3D 프리미티브 조작만으로 파라미터화할 수 있다.
 
 **[T2]** Sentaurus Device User Guide — BTBT 모델 계열(**Schenk / Hurkx / Dynamic Nonlocal Path**) 및 GIDL 관련 물리 모델 설정
 
