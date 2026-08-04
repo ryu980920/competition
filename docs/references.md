@@ -1,110 +1,90 @@
 # 참고 자료
 
-> **현재 주제**: DRAM BCAT DBCAT(질화막 두께) × Elevated Source/Drain 접합 도핑 결합 최적화 — GIDL·리텐션·Row Hammer 내성 관점의 상호작용 규명
+> **현재 주제**: FinFET + Embedded SiGe Source/Drain 응력공학 — Ge 조성(%) × 리세스 깊이(nm) 결함 발생 경계(trade-off boundary) 지도
 >
-> 이 문서는 **현재 주제에 필요한 자료만** 담는다. 이전에 검토했다가 폐기한 GAA 나노시트 계열의 참고문헌은 [`topic-selection-history.md`](topic-selection-history.md)로 옮겼다.
+> 이 문서는 **현재 주제에 필요한 자료만** 담는다. 이전에 검토했다가 폐기한 GAA 나노시트 계열, DRAM BCAT 계열(코너 라운딩·DBCAT×접합 도핑 둘 다)의 참고문헌은 이 문서에서 뺐다 — git 히스토리로 복원 가능하며, 폐기 경위는 [`topic-selection-history.md`](topic-selection-history.md)에 서술돼 있다.
 >
-> **개정 (2026-08-02)**: 첫 번째 스윕 변수를 Rfillet(핀 필렛 반경, 코너 라운딩)에서 DBCAT(질화막 두께)으로 교체했다. Rfillet은 새들핀 채널 내부의 코너(리세스 바닥 쪽)를 가리키는 변수로, GIDL이 실제 발생하는 표면의 게이트-드레인 겹침과는 다른 위치였다. 경위는 [devlog.md](devlog.md) 참고.
+> **개정 (2026-08-04)**: DBCAT(질화막 두께)×접합 도핑에서 FinFET + Embedded SiGe S/D 응력공학으로 전환하며 전면 교체. 경위는 [devlog.md](devlog.md) 참고.
+>
+> **표기 원칙**: 각 항목에 `[확인됨]` 또는 `[미확인 — 원문 대조 필요]`를 반드시 표시한다. 이 세션 전체의 핵심 원칙이 "확인 안 된 건 확인 안 됐다고 표시한다"였다.
 
 ## 1. 베이스라인 (팀 전원 필독)
 
-**[B1]** J. Kim et al., ["Simulation Study: The Impact of Structural Variations on the Characteristics of a Buried-Channel-Array Transistor (BCAT) in DRAM,"](https://www.mdpi.com/2072-666X/13/9/1476) *Micromachines*, 2022, 13(9), 1476.
+**[B1]** Synopsys Sentaurus Applications Library — `FinFET_14nm` / `FinFET_22nm` 예제
 
-- 오픈 액세스 — 로그인 없이 PDF 다운로드 가능
-- PMC 미러: https://pmc.ncbi.nlm.nih.gov/articles/PMC9505224/
-- **역할**: 우리 구조 치수·시뮬레이션 조건의 출처
-- **내용**: Sentaurus TCAD로 구현한 BCAT를 대상으로 리세스-게이트길이 비(AR), **DBCAT(질화막 두께)**, 접합 깊이, 핀 폭, 핀 필렛 반경을 변수로 Vth·SS·Ion/Ioff·DIBL을 분석. DBCAT은 "게이트-드레인 겹침을 줄여 GIDL을 줄이는" 목적이 명시적으로 서술된 유일한 구조 변수
-- **우리와의 관계**: 이 논문이 개별 변수로만 다룬 'DBCAT'을 '접합 도핑'과 결합해 2차원으로 확장하는 것이 우리 기여
+- **역할**: 구조 출발점(논문 재현이 아니라 툴 제공 예제를 그대로 씀)
+- **상태**: `[미확인 — 원문 대조 필요]` 이 예제가 Intel 22nm Tri-Gate / PTM 14nm 공정에 실제로 대응한다는 것은 **파일명 기반 추측일 뿐**이다. 학교 라이선스로 예제를 직접 열어 치수 스펙(핀 폭·핀 높이·게이트 길이)을 대조해야 한다 — **최우선 확인 과제**
+- **상태**: `[미확인]` 예제가 SProcess 실제 공정 흐름인지, 공정 에뮬레이션(SDE로 형상만 근사 생성)인지도 확인 안 됨
 
-**핵심 수치**
+## 2. 선행연구 — 방법론 (FinFET + eSiGe TCAD)
 
-| 파라미터 | 값 |
-|---|---|
-| 물리적 게이트 길이 (Lgate) | 20 nm |
-| 리세스 깊이 (Drecess) | 120 nm (AR = Drecess/Lgate ≈ 6.0) |
-| 게이트 산화막 두께 | 5 nm (리세스 영역 + 새들핀 피복) |
-| 게이트 재료 / 일함수 | 텅스텐(W) / 4.8 eV |
-| **DBCAT (질화막 두께)** | **공칭 36 nm (24~48 nm 스윕). 우리 첫 번째 스윕 변수** |
-| 핀 필렛 반경 (Rfillet) | 공칭 1.0 = 반원형(완전 라운딩). GIDL과 무관, 소자 신뢰성(산화막 내구성) 관련 변수 — 사용하지 않음 |
-| 채널 구조 | 새들핀 — Si₃N₄ 절연층 아래 매립, W 게이트 + SiO₂ 피복 |
+**[P1]** Choi, Moroz, Smith, Penzin (Synopsys), "14 nm FinFET Stress Engineering with Epitaxial SiGe Source/Drain," *ISTDM* 2012.
 
-**읽는 법**: 처음에는 그림(구조 단면도, Id-Vg, 파라미터별 그래프)만 훑어볼 것. [DRAM 기초 학습자료](reports/dram-basics.md)를 먼저 읽었다면 그림만으로도 상당 부분 이해된다. 특히 DBCAT 관련 부분을 주의 깊게 볼 것.
+- **역할**: Sentaurus 제작사가 직접 쓴 FinFET+SiGe TCAD 방법론 논문 — 우리 방법론과 가장 유사, 최우선 참고
+- **상태**: `[미확인 — 원문 대조 필요]` IEEE 페이월이라 초록/2차 요약만 확인. 원문은 학교 IEEE Xplore 계정으로 확인 필요
 
-## 2. 접합 저도핑 · GIDL · 리텐션 근거
+**[P2]** Gendron-Hansen, Korablev, Chakarov, Egley, Cho, Benistant (Synopsys), "TCAD analysis of FinFET stress engineering for CMOS technology scaling," *SISPAD* 2015, pp. 417-420. DOI: 10.1109/SISPAD.2015.7292349.
 
-**[R1]** J. Y. Kim et al., ["The breakthrough in data retention time of DRAM using Recess-Channel-Array Transistor(RCAT) for 88nm feature size and beyond,"](https://www.researchgate.net/publication/4028293_The_breakthrough_in_data_retention_time_of_DRAM_using_Recess-Channel-Array_TransistorRCAT_for_88_nm_feature_size_and_beyond) Symp. VLSI Technology.
+- **역할**: **우리 프로젝트와 가장 근접한 선행연구.** eSiGe 캐비티(리세스) 설계와 FinFET 세대별 응력의 관계를 다룸
+- **차별점 (반드시 발표에서 명시)**: 이 논문의 축은 **기술 노드 세대**, 목표는 **응력 최대화**. 우리 축은 **Ge%×리세스 깊이**, 목표는 **결함 발생 경계 매핑**(응력 최댓값이 아니라 안전 영역의 최댓값을 찾는 것)
+- **상태**: `[미확인 — 원문 대조 필요]` IEEE 페이월이라 초록/2차 요약만 확인. 독창성 주장의 최종 확인 단계이므로 반드시 원문 대조 필요
 
-- RCAT/BCAT 계열의 원조 논문
-- **역할**: Elevated Source/Drain(ESD) 구조의 접합부 저도핑이 전계를 낮춰 드레인 누설과 그 산포를 줄이고 리텐션을 개선한다는 근거 — 우리 두 번째 변수(접합 도핑)의 물리적 정당성
+**[P3]** Joshi et al., "Source/drain eSiGe engineering for FinFET technology," *Semiconductor Science and Technology*, 2017.
 
-**[R2]** ["Saddle-fin Cell Transistors with Oxide Etch Rate Control by Using Tilted Ion Implantation (TIS-Fin) for Sub-50-nm DRAMs,"](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART001428889) *J. Korean Physical Society*, 2010.
+- **역할**: eSiGe 엔지니어링 인접 연구
+- **상태**: `[미확인 — 원문 대조 필요]`
 
-- 틸트 임플란트로 새들핀 균일도를 개선(웨이퍼 내 Vth 산포 <100 mV, 양산 S-RCAT 수준)
-- **역할**: '새들핀 + 도핑 제어'라는 접근 계보의 선행 사례. 기법은 우리와 다름(우리는 틸트 임플란트가 아님)
+## 3. 임계두께 공식 (등고선 경계선에 둘 다 적용)
 
-## 3. 인접 연구 (겹침 확인용 — 발표 시 정직하게 인용할 대상)
+**[F1]** R. People, J. C. Bean, "Calculation of critical layer thickness versus lattice mismatch for GeₓSi₁₋ₓ/Si strained-layer heterostructures," *Applied Physics Letters*, 47(3), 322-324 (1985). DOI: 10.1063/1.96206. (1986년 Erratum 있음)
 
-**[N1]** ["Variation-aware analysis of buried-channel-array transistors (BCATs) in scaled DRAM: insights from 3D quasi-atomistic simulations"](https://www.researchgate.net/publication/386265159_Variation-aware_analysis_of_buried-channel-array_transistors_BCATs_in_scaled_DRAM_insights_from_3D_quasi-atomistic_simulations) (2024)
+- **역할**: 평면(blanket) 기준 임계두께 근사식의 출처. 실무 근사식 **Tc ≈ 1.23 × x⁻³·⁰⁸ (nm, x = Ge 몰분율)**
+- **상태**: `[미확인 — 원문 대조 필요]` 이 근사식은 **원 논문 자체의 계산식이 아니라 2차 문헌의 근사 피팅식**이다. 원 논문의 실제 Fig.(임계두께 vs Ge 조성 그래프)에서 값을 읽어 대조해야 하는데, **페이월 때문에 검색으로는 원문을 구하지 못했다** — 학교에 논문 복사 신청한 상태(진행 중). 원문을 실제로 본 적 없이 숫자를 지어내는 것을 피하기 위해, 이 대조 자체를 미확인 상태로 명시해둔다
 
-- 새들핀-소스/드레인 코너 곡률(rounding)이 Vth·전류·산포에 미치는 영향을 3D 준원자단위 모델로 분석
-- DBCAT으로 변수를 교체하며 직접적 겹침은 줄었으나, BCAT 구조 변동성 연구 전반의 인접 문헌으로 발표 시 인용 가치가 있음
+**[F2]** S. Luryi, E. Suhir, "New approach to the high quality epitaxial growth of lattice-mismatched materials," *Applied Physics Letters*, 49(3), 140-142 (1986). DOI: 10.1063/1.97204.
 
-**[N2]** ["Design Strategies for BCAT Structures: Enhancing DRAM Reliability and Mitigating Row Hammer Effect,"](https://www.mdpi.com/2079-9292/14/3/499) *Electronics*, 2025, 14(3), 499.
+- **역할**: 좁은 메사(mesa/fin) 구조의 탄성 edge relaxation으로 임계두께가 늘어난다는 것의 출처. 경험식: **fin 폭 W < 15×Tc(People-Bean 평면값)** 이면 결함 없이 버팀
+- **상태**: `[미확인 — 원문 대조 필요]` 이것도 2차 문헌 요약이며, 원 논문의 실제 해석적 표현식은 아직 확인 못함. (DOI를 처음에 10.1063/1.97316으로 잘못 추측했다가 재검색으로 정정한 사례 — [retrospective.md](retrospective.md) 참고)
 
-- BCAT 구조 설계와 Row Hammer를 연결한 최신 연구. 기법은 air-gap이라 우리와 겹치지 않음
-- **역할**: 'BCAT 구조 설계 → Row Hammer 내성'이라는 논리 연결의 선례
+**[F3]** Hartmann et al., "Critical thickness for plastic relaxation of SiGe on Si(001) revisited," *Journal of Applied Physics*, 110, 083529 (2011).
 
-**[N3]** ["Mitigating Pass Gate Effect in Buried Channel Array Transistors Through Buried Oxide Integration,"](https://www.mdpi.com/2076-3417/14/22/10348) *Applied Sciences*, 2024, 14(22), 10348.
+- **역할**: **People-Bean 근사식의 신뢰도를 검증한 논문.** Ge 12/22/32/42/52%에서 실제로 SiGe를 성장시키고 XRD로 실측 임계두께를 측정
+- **핵심 결과**: **Ge 22% 이상 구간에서는 실측 임계두께가 People-Bean 예측치보다 약 2배 더 높게 나옴** — People-Bean 근사식이 상당히 보수적(과소평가)이라는 실측 근거. 등고선 해석 시 "이중으로 보수적으로 잡아도 안전한 영역"이라는 프레이밍에 직접 사용
+- **상태**: `[확인됨]` 논문 존재·핵심 결과(XRD 실측 vs People-Bean 비교)까지 확인. 세부 수치(정확한 배율 곡선)는 원문 확인 시 보강 예정
 
-- 워드라인 간 간섭(pass gate effect) 관련. 우리 주제와 직접 겹치지 않으나 BCAT 신뢰성 이슈 전반의 배경
+## 4. 관련 특허 — 주의 사례 포함
 
-**[N4]** ["Partial Isolation Type Buried Channel Array Transistor (Pi-BCAT) for a Sub-20 nm DRAM Cell Transistor,"](https://www.mdpi.com/2079-9292/9/11/1908) *Electronics*, 2020.
+**[X1]** US9245980B2 (Akarvardar, Fronheiser, Jacob)
 
-- sub-20nm BCAT 구조 변형 사례. 구조 설계 자유도의 참고 자료
+- **⚠ 주의**: 이전에 이 특허를 "Luryi-Suhir식 탄성 완화"의 근거로 인용했으나, **실제로 읽어보니 메커니즘이 다르다.** 이 특허는 ART(Aspect-Ratio Trapping) + 열처리 확산 방식 — SiGe를 블랭킷 증착 후 열확산시켜 결함을 트렌치 바닥에 가두는 방식이다. 우리 공정(SEG로 직접 리세스에 에피 성장)과는 메커니즘이 달라 **"우리 방식이 blanket보다 유리하다"는 직접 근거로 쓰면 안 됨**
+- **상태**: `[확인됨 — 단, 우리 근거로는 부적합]` 정정 경위는 [retrospective.md](retrospective.md) 참고
+- **대체 후보**: 이 특허가 인용한 **Kim et al., "Increased critical thickness for high Ge-content strained SiGe-on-Si using selective epitaxial growth," Applied Physics Letters, 97, 262106 (2012)** [X1-alt] — SEG(우리 공정과 동일 메커니즘)를 다뤄 훨씬 정확히 맞는 대체 후보. `[미확인 — 원문 대조 필요]`
 
-## 4. 물리 이해용 (GIDL · Row Hammer)
+## 5. 물리 이해용 — Ge%·리세스 깊이가 응력에 미치는 영향
 
-- **GIDL 메커니즘**: GIDL은 게이트·산화막·드레인이 겹치는 **영역에 극도로 국소화된 표면 현상**이며, 강한 수직·수평 전계가 겹쳐 밴드가 급격히 휘고 밴드간 터널링(BTBT)이 발생한다. 이 국소성이 "겹침 자체를 줄이면(DBCAT) GIDL을 바꿀 수 있다"는 우리 가설의 물리적 근거다.
-- **전계 집중(Field Crowding)**: 뾰족한 곳이나 겹침이 큰 곳에 전기장이 몰리는 현상. DBCAT을 키워 겹침 영역을 줄이면 전기장이 완화된다.
-- **Row Hammer**: 공격 대상 행의 워드라인을 반복 활성화하면 기판(p-well)에 순간적 강전계가 생겨 전자가 주입되고, 이것이 확산해 인접 셀의 저장 전하를 상쇄시켜 데이터를 뒤집는다. **주입이 시작되는 지점이 GIDL 발생 지점과 동일**하다.
+- **Ge 조성**: Vegard's law에 따라 Ge%가 높을수록 SiGe의 자연 격자 상수가 커진다. Si 기판 위에 정합 성장하면서 억지로 눌린 압축 변형이 되고, 이 변형이 채널 실리콘까지 전달돼 정공 이동도를 높인다. Ge%가 높을수록 변형 에너지가 커지지만, 버틸 수 있는 두께(임계두께)는 줄어든다 ([F1] 참고).
+- **리세스 깊이**: 격자 차이와 무관한 순수 기하학적 변수. 깊을수록 SiGe 부피·채널 근접성이 늘어 응력 전달이 세지지만, 무한정 좋아지진 않는다 — "적당한 SiGe 오버필이 최대 응력"이라는 비단조적 결과가 40nm PMOS TCAD 문헌에서 확인됨. `[미확인 — 원문 대조 필요]` (2차 요약 기준)
+- **"Orthogonal(독립)"과 "트레이드오프"는 모순 아님**: 문헌에서 "Ge%와 리세스 깊이가 orthogonal한 설계 손잡이"라는 표현은 *성능 설계 관점*(각자 다른 성능 지표를 담당, 독립적으로 조작 가능)에서 하는 말이고, *신뢰성/결함 발생 관점*에서는 두 값이 함께 변형 에너지 총량을 정하므로 트레이드오프가 맞다.
+- **FinFET 구속 효과**: FinFET은 fin이라는 좁은 구조라 SiGe가 옆면까지 둘러싸여 자란다(공간적 구속). 이 구속 구조가 평면(blanket) 기준 임계두께보다 더 두껍게/높은 Ge%로도 결함 없이 버틸 수 있다는 것이 [F2]의 물리적 근거다.
 
-> 이 세 가지의 상세 설명은 [DRAM 기초 학습자료](reports/dram-basics.md) 5장·7장 참고.
+## 6. 툴 레퍼런스
 
-## 5. 툴 레퍼런스
+**[T1]** Sentaurus Structure Editor User Guide — 3D 구조 생성, Scheme 스크립팅. `[미확인 — 학교 라이선스에서 직접 확인 필요]`
 
-**[T1]** Sentaurus Structure Editor User Guide — 3D 구조 생성, Scheme 스크립팅
+**[T2]** Sentaurus Device User Guide — Stress/Mechanical 섹션에 소성 완화(전위결함) 예측 모델이 기본 탑재돼 있는지 확인 필요. 공식 매뉴얼이 검색엔진에 안 걸려 웹 검색으로는 확인 못함. `[미확인 — 학교 라이선스에서 직접 확인 필요]` 현재는 "탑재 안 돼 있다"고 가정하고 하이브리드 방법론([F1][F2] 오버레이)을 설계함
 
-> **중요**: BCAT 같은 3D 리세스 구조는 순수 SProcess만으로 만들기 어렵고, 관련 논문들도 SDE로 구조를 만든다. 일반적 흐름은 2D 공정을 SProcess로 돌린 뒤 3D 형상 구성·도핑 컴파일을 SDE로 수행하는 것이다.
-> DBCAT(질화막 두께)은 금속 게이트 에치백 깊이로 결정되는 표준 3D 구조 파라미터라, 특수 filleting(모서리 둥글리기) 기능 없이도 SDE의 일반적인 3D 프리미티브 조작만으로 파라미터화할 수 있다.
+**[T3]** [TCAD Sentaurus Tutorial (외부 공개 자료)](https://ghzphy.github.io/Sentaurus_Training/sde/sde_menu.html) — SDE 3D 구조 생성 및 파라미터화 실습용. 특히 "Three-Dimensional Structures", "Scripting and Parameterization" 항목. FinFET 리세스 구조 학습에도 그대로 유효. `[확인됨 — 외부 공개 튜토리얼, 접근 가능]`
 
-**[T2]** Sentaurus Device User Guide — BTBT 모델 계열(**Schenk / Hurkx / Dynamic Nonlocal Path**) 및 GIDL 관련 물리 모델 설정
+**[T4]** 학교 라이선스 예제 라이브러리 — FinFET_14nm/FinFET_22nm 예제 실제 존재·치수 확인. `[미확인 — 최우선 확인 과제]`
 
-> 어느 모델을 쓸지 결정하고 근거를 기록할 것. 관련 논문들은 주로 비국소(nonlocal) 경로 모델을 사용한다.
+## 7. 경진대회 관련
 
-**[T3]** [TCAD Sentaurus Tutorial (외부 공개 자료)](https://ghzphy.github.io/Sentaurus_Training/sde/sde_menu.html) — SDE 3D 구조 생성 및 파라미터화 실습용. 특히 "Three-Dimensional Structures", "Scripting and Parameterization" 항목. **구조 담당자 필수.**
+- 실제 2025/2026 POLARIS SIF 수상작(아이디어·작품 부문) 6건을 팀이 직접 분석 — 그 중 **김나박구팀(2026 작품 부문, "BCAT+DWMG")**이 직전 주제(DBCAT×접합도핑)와 유사 조합으로 출품된 것을 확인, 이것이 이번 전환의 직접 계기 (경위는 [devlog.md](devlog.md), [topic-selection-history.md 7단계](topic-selection-history.md) 참고)
+- `[미확인 — 확인 필요]` **FinFET+SiGe eS/D(Ge%×리세스 깊이 결함경계 매핑) 자체가 분석한 6건의 실제 수상작과 겹치는지는 아직 명시적으로 재확인하지 않았다.** DBCAT/NCFET 기각 때처럼 이 조합도 6건 각각과 직접 대조해볼 것 — 다음 devlog 항목에서 처리
 
-**[T4]** 학교 라이선스 예제 라이브러리 — **DRAM/BCAT/리세스 게이트 관련 예제 존재 여부 미확인. 최우선 확인 과제.** 웹 검색으로는 Synopsys Applications Library 내 BCAT 전용 예제를 확인하지 못했으나, 없더라도 [B1]이 치수를 모두 공개하므로 프로젝트는 진행 가능하다.
+## 8. 팀 내부 문서
 
-## 6. 경진대회 관련
-
-- [수상작 분석 및 추천 주제](reports/award-analysis-and-topic-selection.md) — POLARIS SIF·KCS·삼성휴먼테크 수상작 11건 분석, 패턴 정리. **DRAM 셀 트랜지스터가 수상 카테고리임을 확인한 근거 문서**
-
-**직접 관련된 수상작**
-
-- [Multiple-energy ion implantation을 이용한 최적의 9.6nm BCAT 설계](https://polargate.disu.ac.kr/contest/SIF2025/winner?applyidx=258) — SIF 2025 **사업단장상**, 중앙대
-  - 같은 소자(BCAT)로 최고상을 받은 사례. 공정 파라미터 최적화 접근이 수상 가능함을 보여주는 근거인 동시에 **우리가 차별화해야 할 대상**
-  - 로그인 후 원문을 확인해 우리 주제와의 차이를 명확히 해둘 것 (**미확인 상태**)
-- [KCS 2025 논문상 전체 목록](http://kcs.cosar.or.kr/2025/awards-2025.jsp) — "Enhancement of On-Current in RCAT Structures and Improving ΔV of DRAM with Dual-k Spacer Design"(중앙대) 포함. DRAM 셀 트랜지스터 구조 최적화가 학회 단위에서도 인정받은 사례
-- [4F2 DRAM 구조를 위한 수직 트랜지스터 제안 및 TCAD 시뮬레이션](https://polargate.disu.ac.kr/contest/SIF2023/winner?sc=y) — SIF 2023 장려상. DRAM 셀 구조 최적화에 TCAD를 활용한 사례
-
-**기타 수상작 링크**
-
-- [POLARIS SIF 2025 수상작품 전체보기](https://polargate.disu.ac.kr/contest/SIF2025/winner?sc=y) (로그인 필요)
-- [POLARIS SIF 2023 수상작품 전체보기](https://polargate.disu.ac.kr/contest/SIF2023/winner?sc=y) (로그인 필요)
-- [제32회 삼성휴먼테크논문대상 수상자 인터뷰](https://news.samsungsemiconductor.com/kr/미래를-설계하는-젊은-과학도들이-모인-현장-수상자-2)
-
-## 7. 팀 내부 문서
-
-- [프로젝트 통합 기획서](reports/project-plan.md) — 주제·이유·설계 방향·확인 사항·결론 전략
-- [DRAM 기초 학습자료](reports/dram-basics.md) — 배경지식 0 기준 학습 자료
-- [주제 선정 이력](topic-selection-history.md) — 검토·기각한 19개 후보 아카이브 (폐기된 GAA 계열 참고문헌 포함)
+- [프로젝트 통합 기획서](reports/project-plan.md) — `[미갱신]` 아직 DBCAT 단계 내용 그대로. FinFET+SiGe 기준 재작성 필요
+- [DRAM 기초 학습자료](reports/dram-basics.md) — `[미갱신]` 아직 DBCAT/DRAM 단계 내용 그대로. FinFET 학습자료로 교체 또는 신규 작성 필요
+- [주제 선정 이력](topic-selection-history.md) — 검토·기각한 20개 후보 아카이브
+- [검증 오류 회고](retrospective.md) — 이 전환 과정에서 실제로 잡아낸 검증 오류 사례

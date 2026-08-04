@@ -2,7 +2,47 @@
 
 새 항목은 위(최신순)에 추가한다. 작성 형식은 [`devlog-template.md`](devlog-template.md) 참고.
 
-> **주제 선정 이력 안내**: 이 프로젝트는 GAA-TFET에서 시작해 여러 차례 방향을 바꾼 끝에 **DRAM BCAT**로 확정되었다. 검토·기각한 후보 19개의 전체 목록과 사유는 [`topic-selection-history.md`](topic-selection-history.md)에 정리되어 있다. 아래 로그는 시간순 기록이므로 폐기된 경로의 항목도 그대로 남아 있다.
+> **주제 선정 이력 안내**: 이 프로젝트는 GAA-TFET에서 시작해 여러 차례 방향을 바꾼 끝에 **FinFET + Embedded SiGe Source/Drain 응력공학**으로 확정되었다 (직전까지는 DRAM BCAT였으나 2026-08-04에 다시 전환됨). 검토·기각한 후보 20개의 전체 목록과 사유는 [`topic-selection-history.md`](topic-selection-history.md)에 정리되어 있다. 아래 로그는 시간순 기록이므로 폐기된 경로의 항목도 그대로 남아 있다.
+
+---
+
+## 2026-08-04 — 주제 전환: DRAM BCAT DBCAT(질화막 두께)×접합 도핑 → FinFET + Embedded SiGe Source/Drain 응력공학
+
+### 배경
+- 실제 2025/2026 POLARIS SIF 수상작(아이디어·작품 부문) 6건을 팀이 직접 분석
+- 그 중 **김나박구팀(2026 작품 부문)**이 이미 "BCAT + DWMG"로 우리가 하려던 것과 유사한 조합을 출품했음을 확인 — DBCAT×접합 도핑 조합의 독창성이 약해짐
+- "~ 최적화가 아니라 기존 구조 + 새 공정 → 개선"이라는 팀의 핵심 요구사항을 재확인, 이 기준으로 대체 주제를 재검토
+
+### 검토한 대안과 기각/채택 경위
+1. **GAA 나노시트 dog-bone 접합 구조** — 검토했으나 "시뮬레이션하기 너무 어렵다"는 판단으로 기각
+2. **NCFET/강유전체 게이트 스택** — 분석한 수상작 6건 중 3건이 이미 "특수 게이트 물질 삽입" 패턴이라 겹침 위험 판단으로 기각
+3. **FinFET + Embedded SiGe Source/Drain 응력공학 (채택)** — FinFET 소스/드레인을 선택적 에피택시(SEG)로 SiGe 대체, in-situ 도핑, PMOS 채널에 압축 응력 유도. 스윕 변수: Ge 조성(%) × 리세스 깊이. 결과물은 단일 최적점이 아니라 두 변수의 트레이드오프 경계(전위결함으로 응력 이득이 무효화되는 지점) 지도
+
+### 결정 사항
+- 최종 주제: FinFET + Embedded SiGe S/D 응력공학, 스윕축 Ge%×리세스 깊이, 결과물은 결함 발생 경계(trade-off boundary) 2차원 지도
+- 방법론: Sentaurus로 (Ge%, 리세스 깊이) 전 구간의 응력·이동도를 완전정합(pseudomorphic) 가정 하에 계산 → 문헌 기반 임계두께 경계선(People-Bean 1985 / Luryi-Suhir 1986)을 등고선 위에 별도로 오버레이하는 하이브리드 방식 (Sentaurus 자체는 결함을 반영하지 않는다는 것을 항상 전제)
+- **팀 협업 방식을 대시보드 기반으로 전환**: 실제 작업용 저장소 [`ryu980920/Share`](https://github.com/ryu980920/Share)를 신설하고, GitHub Pages 대시보드([`https://ryu980920.github.io/Share/`](https://ryu980920.github.io/Share/))를 만들어 담당 과제·진행 체크리스트·소자 사진/메모·결과 CSV를 팀원 3인이 한 화면에서 공유·갱신할 수 있게 함. 정적 페이지라 체크박스/업로드가 그냥은 저장되지 않는 한계를, GitHub REST API를 브라우저에서 직접 호출(개인 Personal Access Token을 브라우저에만 저장)하는 방식으로 해결 — 팀원이 git 명령어를 몰라도 체크·사진 업로드가 실제로 저장소에 커밋되도록 구현함. 이 레포(`competition`)는 여정·의사결정 기록용이고, `Share`는 실행·결과 공유용으로 역할을 분리함
+- 핵심 참고자료 확보: Choi et al.(Synopsys, 2012), Gendron-Hansen et al.(Synopsys, SISPAD 2015 — 가장 근접한 선행연구, 축·목표 차별점 명시 필요), Joshi et al.(2017), People-Bean(1985), Luryi-Suhir(1986), Hartmann et al.(2011 — People-Bean 근사식이 Ge 22% 이상에서 실측 대비 최대 ~2배 과소평가한다는 것을 XRD로 확인한 논문, 상세는 references.md)
+
+### 막힌 점 / 리스크
+- Gendron-Hansen(2015)·Choi(2012) 원문이 IEEE 페이월이라 아직 전체를 못 읽음 — 우리 축(Ge%×리세스 깊이, 결함경계 매핑)과 Gendron-Hansen의 축(기술노드 세대, 응력 최대화)이 다르다는 차별점을 원문으로 최종 확인해야 함
+- People-Bean(1985) 원 논문의 임계두께 그래프 데이터를 페이월 때문에 못 구함 — 학교에 논문 복사 신청한 상태 (진행 중)
+- US9245980B2 특허를 한때 "Luryi-Suhir식 탄성 완화"의 근거로 잘못 인용했다가, 원문을 직접 읽고 실제로는 ART(Aspect-Ratio Trapping)+열확산이라는 다른 메커니즘임을 확인해 정정함 — 우리 공정(SEG로 직접 리세스에 에피 성장)과 메커니즘이 달라 직접 근거로 못 씀. 대신 이 특허가 인용한 Kim et al.(2012, SEG 전용)이 더 정확한 대체 후보이나 원문 아직 미확인 (상세 경위는 [retrospective.md](retrospective.md))
+- FinFET_14nm/22nm 예제(Synopsys Sentaurus Applications Library)가 Intel 22nm Tri-Gate / PTM 14nm에 실제로 대응하는지는 파일명 기반 추측일 뿐 미검증
+
+### 다음 할 일
+- [ ] Gendron-Hansen(2015)·Choi(2012) 원문을 학교 IEEE Xplore 계정으로 확인
+- [ ] People-Bean(1985) 원 논문 그래프 데이터 확보되는 대로 근사식과 대조
+- [ ] Kim et al.(2012, SEG 대체 후보) 원문 확인
+- [ ] `docs/reports/project-plan.md`, `docs/reports/dram-basics.md`를 FinFET+SiGe 기준으로 재작성 (아직 DBCAT 단계 그대로임)
+- [ ] 학교 라이선스에서 FinFET_14nm/22nm 예제 실제 치수 확인 (최우선)
+- [x] Share 저장소·대시보드 사용법을 팀원(GitHub 미경험자)용 설명서로 정리해 배포 — `Share/docs/Share_저장소_대시보드_사용설명서.docx`
+
+### 참고
+- 오늘 검증 과정에서 실제로 잡아낸 오류(믿을 뻔했다가 정정한 사례) → [retrospective.md](retrospective.md)
+- 참고 문헌 전체(확인됨/미확인 상태 표시) → [references.md](references.md)
+- 기각 경위 상세(20번째 후보로 등재) → [topic-selection-history.md](topic-selection-history.md)
+- 실행·팀 협업용 저장소(이 레포와 역할 분리) → https://github.com/ryu980920/Share , 대시보드 → https://ryu980920.github.io/Share/
 
 ---
 
