@@ -6,6 +6,40 @@
 
 ---
 
+## 2026-08-06 — SVisual로 baseline 구조 직접 열어 확인 + Strain_Impact 응력-이동도 결합 검증
+
+### 한 일
+- SVisual(`n1_e_fps`)로 baseline 구조를 직접 열어서 채널 길이/핀 폭/핀 높이가 각 축의 어디에 해당하는지 확인 — 처음엔 축 위젯(X/Y/Z 화살표)만 보고 판단하려다 헷갈려서, 재질/Region을 하나씩 꺼보면서 형상으로 재확인하는 방식으로 전환
+- "핀이 어디서 끝나고 기판이 어디서 시작하는지"를 도핑 색(NetActive)만으로 구분하려다 착각 — 채널과 기판이 배경 도핑 농도가 비슷해서 같은 색으로 보였던 것. Oxide(STI) 재질만 단독으로 켜서 그 윗면 높이로 핀/기판 경계를 다시 확인
+- SiGe 재질만 켜고 봤을 때 "채널(ChFin)도 SiGe 아니냐"는 오해가 발생 — Materials 탭(재질 단위)과 Regions 탭(스크립트가 이름 붙인 세부 영역 단위)을 혼동한 게 원인이었음. Regions 탭에서 ChFin만 단독으로 분리해서 켜보니 정상적으로 n형 Silicon(Nch 수준)인 것으로 확인, 오해 해소
+- S/D 도핑도 처음엔 "표면 근처만 고농도, 몸통은 배경 수준"이라고 잘못 판단 — 이것도 ChFin(채널)이 같은 화면에 섞여 있어서 생긴 착시였고, SDepi(S/D)만 따로 분리해서 BTotal·BActive를 보니 부피 전체가 균일하게 2e20으로 정상
+- `finfet_sprocess.scm` 원문을 직접 읽고 리세스(FR)·언더컷(Esd) 식각이 실제 `etch type=anisotropic/isotropic` 물리 모델이 아니라 `polyhedron/brick` 방식(이상적인 사각 형상 boolean 치환)으로 구현돼 있음을 확인 — 실제 식각 프로파일(경사면 등)은 반영 안 됨
+- Esd를 "채널 아래로 파고드는 것"으로 착각했다가, brick 좌표를 직접 계산해서 "핀 전체 높이에 걸쳐 균일하게, 채널 길이 방향으로만 7.5nm 옆으로 파고드는 것"이고 게이트 바로 밑 25nm 채널 자체는 (Esd < Lsp0라서 0.5nm 여유를 두고) 안 건드린다는 것으로 정정
+- GeTotal 스칼라를 평면 컷(cutline)으로 잘라서 Ge=0(채널) 구간의 실제 폭을 측정 — 계산값(L+2·Lsp0-2·Esd ≈ 26nm)과 실측(~20~25nm)이 비슷해서, 이전에 3D 비스듬한 뷰에서 "너무 얇아 보였던 것"은 원근 왜곡 때문이었다고 결론
+- STE 정규화 방법(채널 인접 지점, GPa 환산 방식) 초안 제안: 게이트 산화막 계면 × 채널 길이 중앙 × 핀 중심선(Y=0) 지점에서, StressEL 세 성분 중 채널 방향(길이 방향) 성분 하나만 사용 — 팀 확정 대기
+- Strain_Impact=1 vs 0 SWB 비교 CSV(G50_F0, Ge=0.50/FR=0)로 최종 판정: IdSat_norm +227%(1.704e-4→5.574e-4), IdLin_norm +176%, gmSat +116%, |VtiSat| −23%(0.525V→0.403V), SSSat 549.8→183.5. 방향성(Ion↑, |Vth|↓)이 eSiGe pMOS 문헌(압축응력→정공 이동도 증가, 밸런스밴드 효과로 |Vth| 감소)과 일치 — 응력→전기 결합이 실제로 작동함을 확인
+
+### 결정 사항
+- Strain_Impact 응력-이동도 결합 정상 작동 확인 → **G50_F0을 baseline으로 확정**
+- `Share/baseline/params.yaml`(`verification.strain_impact_coupling`), `baseline/README.md`(체크리스트·변경이력)에 검증 결과 반영. 이번 건은 팀 판단으로 PR 절차 생략하고 main에 직접 반영(baseline/README.md의 "직접 push 금지" 원칙에서 예외 처리, 사유는 위 README.md 참고)
+
+### 막힌 점 / 리스크
+- SSSat 절대값(183~550 mV/dec)이 이상적 60mV/dec 대비 매우 높음 — 이 서브구조는 게이트 재질이 없는(`gate_material_present:false`) 순수 응력/도핑 계산용이라, 완전한 게이트 스택 구조에서 재확인 필요
+- STE 정규화 방법은 아직 "제안" 단계이지 팀 확정이 아님
+- `doe.x_levels`/`y_levels`(Ge%·FR 스윕 격자)는 여전히 PLACEHOLDER, `values_confirmed: false` 그대로
+
+### 다음 할 일
+- [ ] STE 정규화 방법(채널 인접 지점 좌표, GPa 환산 방식) 팀 확정
+- [ ] SSSat 비정상적으로 높은 값의 원인 확인 (완전한 게이트 스택 구조에서 재검증)
+- [ ] `doe.x_levels`/`y_levels` 확정 → `values_confirmed: true`
+- [ ] 25개 격자점 본 스윕 시작
+
+### 참고
+- `Share/baseline/README.md` 변경이력, `Share/baseline/params.yaml`의 `verification.strain_impact_coupling`
+- 근거 CSV: `Share/baseline/verification_strain_impact_G50F0.csv`
+
+---
+
 ## 2026-08-04 — 주제 전환: DRAM BCAT DBCAT(질화막 두께)×접합 도핑 → FinFET + Embedded SiGe Source/Drain 응력공학
 
 ### 배경
