@@ -6,6 +6,133 @@
 
 ---
 
+## 2026-08-06 (5) — 오늘 작업 전체 반영: 체크박스 정리 + 문서 동기화
+
+### 한 일
+- 메쉬 창-수렴 체크(2nm→1nm, 0.8% 차이)와 실제 메쉬 수렴성 검증(tasks.js #8)이 다른 질문이라는 걸 설명 — 전자는 "같은 메쉬에서 후처리 창 크기를 줄여도 안정적이냐", 후자는 "메쉬 자체(refinebox 설정)를 바꿔 재시뮬레이션해도 결과가 안 바뀌냐"로, 전자가 확인됐다고 후자를 완료 처리하면 안 됨을 명확히 함
+- `Share`/`competition` 전체에서 오늘 한 작업 기준으로 체크·기입 가능한 항목을 전부 훑음:
+  - `analysis/progress.json`: `#4`(baseline 구조 재현) 유용성 체크 — G50_F0 실제 실행 결과(verification CSV)가 존재해 구조 스크립트가 end-to-end로 동작함이 증명됨
+  - `analysis/progress.json` 데이터 정합성 버그 발견·수정: `#1`/`#3`/`#4`/`#16`(공동 과제)에 주수빈 키가 누락돼 있었고, `#9`/`#10`/`#11`/`#12`/`#13`/`#17`(개별 과제)은 담당자 키 자체가 tasks.js/task_rules.yaml과 어긋나 있었음(예: FR 단독 스윕은 유용성 담당인데 남다연 키로, Ge% 스윕 #10은 주수빈 담당인데 남다연 키로 들어가 있었음). 대시보드 표시 이름 자체는 tasks.js 기준으로 그려져 화면상 오류는 없었지만, 데이터 파일 안에 엉뚱한 키가 계속 쌓이는 구조였음 — 전부 바로잡음
+  - `Share/README.md`(루트): Y축 변수(FR) 설명, STE 측정 정의 박스, Run ID 명명 규칙, "확정 필요 항목" 목록, 폴더 구조 설명, 일정 요약을 전부 최신 상태로 갱신. 스크립트가 여전히 "골격/TODO"라고 적혀 있던 부분들도 정정
+  - **부수적으로 발견한 오류**: 루트 README에 "Esd가 이미 파라미터화돼 있다"고 적혀 있었는데, 실제 스크립트를 보니 스윕 가능한 변수가 아니라 **고정 상수값**이었음(스윕 변수 아님) — 예전에 실제 스크립트를 못 보고 추정으로 적었던 부분이 틀렸던 것. 정정함
+  - `tasks.js`의 `#1`/`#3`/`#4` purpose 텍스트를 오늘 확인된 실제 상태로 갱신
+
+### 결정 사항
+- 데이터 정합성(progress.json 담당자 키)과 문서 동기화(README/tasks.js)는 "팀 판단"이 필요한 항목이 아니라 사실관계 오류 수정이라 바로 반영함 — PR 없이 직접 커밋
+
+### 다음 할 일
+- [ ] `finfet_svisual_stress.tcl`(2026-08-06 최신판, SlFin_pt 등 포함) 팀 채널로 공유
+- [ ] 나머지 24격자점 스윕 착수 (#10~17)
+- [ ] `#1` FR>0 실제 Sentaurus 검증, `#5` 3인 baseline 대조
+- [ ] `#8` 메쉬 수렴성 검증(진짜 재시뮬레이션 기반, 남다연)
+
+### 참고
+- `Share/analysis/progress.json`, `Share/README.md`, `Share/tasks.js`, `Share/baseline/README.md`, `Share/baseline/params.yaml`
+
+---
+
+## 2026-08-06 (4) — STE 체적평균 vs 계면 단일점 실측 비교 → 큰 차이 확인, 채택 결정 보류로 정정
+
+### 한 일
+- (3)번 항목에서 `finfet_svisual_stress.tcl`에 추가해둔 계면 인접 단일점 근사 코드를 실제로 SWB에서 돌려봄 — 사용자가 노드 14(SVisual, stress 추출)를 Clean Up(Files To Delete: n14_vis.*, pp14_vis.cmd 등) 후 재실행
+- 첫 시도에서 헤더에 `#set SlFin_pt x` 등 신규 변수 선언이 빠져있던 걸 발견해 추가 — Sentaurus Workbench는 `#set 이름 x`로 선언된 변수만 결과표(변수 테이블)에 잡기 때문에, 이게 없으면 `puts "DOE: ..."` 값이 로그에만 남고 CSV/변수표엔 안 잡힘
+- G50_F0(Strain_Impact=1) 결과: **SlFin(체적평균) = -2262 MPa vs SlFin_pt(계면 인접 근사) = -3482 MPa — 53.9% 차이**. ShFin은 +490(체적평균) vs -124(계면 근사)로 **부호까지 반전**. SwFin은 508 vs 389로 상대적으로 덜 벌어짐(23%, 부호 동일)
+- 이 결과를 두고 "약간 희석되는 수준이냐, 크게 변형되는 수준이냐"는 질문에 명확히 후자라고 판단 — ShFin 부호 반전은 단순 크기 차이가 아니라 정성적으로도 다른 결론이 나올 수 있다는 뜻이라 더 신경쓰임
+- 사용자 제안으로 방향 전환: 지금 하나의 방식으로 확정하지 말고, **남은 24격자점 스윕에서 체적평균·계면근사를 둘 다 뽑아 데이터를 모은 뒤, 스윕이 다 끝나면 그때 최종 STE 정의를 결정**하기로 함 — 이미 스크립트가 둘 다 뽑도록 돼 있어서 추가 작업 부담이 거의 없음
+
+### 결정 사항
+- (3)번에서 "체적평균 팀 채택 확정"이라고 기록했던 것을 **"provisional(잠정)"로 정정**. `params.yaml`의 `stress_transfer_efficiency.normalization.adopted`를 `true` → `"provisional"`로 변경, 실측 비교값(`measured_diff_G50F0`)을 그대로 기록
+- 최종 STE 정의는 25격자점 스윕이 끝난 뒤, 오프셋(체적평균-계면근사 차이)이 조건마다 일정한지 아니면 Ge%/FR에 따라 달라지는지를 보고 결정하기로 함
+- ⚠ 새로 발견한 조율 리스크: `finfet_svisual_stress.tcl`이 라이선스 문제로 git에서 빠져있어서(2026-08-06 (2) 참고), 스윕 담당 3인이 전부 같은 최신 버전(SlFin_pt 포함)을 쓰고 있는지 git으로 보장이 안 됨 — 누군가 예전 버전(SlFin/SwFin/ShFin만 있는)으로 스윕을 돌리면 그 사람 격자점만 비교 데이터가 빠지게 됨. 팀 채널로 파일을 직접 공유해서 싱크 맞춰야 함
+
+### 막힌 점 / 리스크
+- 계면 근사 창(2nm×2nm×1nm)이 임의로 정한 값이라 -3482라는 절대 수치 자체는 창 크기/위치에 따라 달라질 수 있음 — "체적평균과 상당히 다르다"는 방향성만 신뢰할 것
+- 스크립트가 git 밖에 있어서 3인 동기화를 수동으로 챙겨야 하는 구조적 위험이 생김
+
+### 다음 할 일
+- [ ] `finfet_svisual_stress.tcl`(2026-08-06 최신판)을 팀 채널로 공유해 3인 전부 같은 버전으로 맞추기
+- [ ] 나머지 24격자점 스윕 시 SlFin/SlFin_pt(및 Sw/Sh 계열) 전부 기록
+- [ ] 스윕 완료 후 오프셋 일관성 확인 → STE 최종 정의 결정
+- [ ] `doe.x_levels`/`y_levels` 확정 → `values_confirmed: true` (별개로 남은 항목)
+
+### 참고
+- `Share/baseline/params.yaml`(`stress_transfer_efficiency.normalization`, `measured_diff_G50F0`)
+- `Share/baseline/README.md` 체크리스트
+- `Share/baseline/finfet_svisual_stress.tcl` (로컬 전용)
+
+---
+
+## 2026-08-06 (3) — STE 정규화 방법(체적평균) 팀 채택 확정 + 계면 단일점 검증 코드 추가
+
+### 한 일
+- STE 정규화 방법(체적평균 vs 계면 인접 단일점) 논의 — 4개 선택지(체적평균 채택/단일점 새로 구현/둘 다 추출/3인 회의로 보류) 중 **"체적평균으로 우선 확정, 첫 실행으로 사후 검증"**을 선택
+- 근거를 설명하다가 "국소 효과가 얼마나 희석되는지" 질문을 받음 — 정직하게 답하면 아직 아무도 체적평균과 단일점을 실제로 비교해본 적이 없어서 정확한 수치는 모른다고 답함. fin이 얇고(반폭 7.5nm) 채널이 짧아(25nm) 극단적으로 왜곡될 가능성은 낮다는 물리적 추론만 제시하고, 확실한 답은 실제 데이터로 검증하자고 제안
+- 이 과정에서 **내가 이전에 "아직 아무도 Sentaurus를 실제로 안 돌려봤다"고 말한 게 틀렸다는 걸 사용자가 지적** — baseline(G50_F0)은 이미 실제로 돌아갔고, `verification_strain_impact_G50F0.csv`의 `SlFin`/`SwFin`/`ShFin` 컬럼 자체가 그 실행 결과였음. 아직 안 돌아간 건 25격자점 본 스윕(#10~17)뿐이었음 — 이 구분을 명확히 하지 않고 뭉뚱그려 말한 게 원인
+- "계면 근처 단일점을 뽑으려면 뭘 해야 하냐"는 질문에 답하며 SVisual 워크플로를 설명: `.tdr` 파일에는 이미 전체 3D 응력장이 저장돼 있어서, SProcess/SDevice를 다시 돌릴 필요 없이 **같은 파일에 대해 SVisual 적분 창(window)만 작게 잡아 그 노드만 재실행**하면 됨
+- `finfet_svisual_stress.tcl`에 계면 인접 단일점 근사(게이트 산화막 계면 x=0 × 채널 중앙 z=0 × fin 중심선 y=0 근방 2nm×2nm×1nm 슬래브) 추출 코드 추가 — `SlFin_pt`/`SwFin_pt`/`ShFin_pt`/`SlFin_diff_pct` 산출
+
+### 결정 사항
+- STE 정규화 = ChFin 영역 체적평균 방식을 **공식 채택** (`params.yaml` `stress_transfer_efficiency.normalization.adopted: true`)
+- 계면 근처 값과의 오차는 "확정 후 검증" 방식으로 처리 — baseline(G50_F0) 재실행(SVisual 노드만) 시 `SlFin` vs `SlFin_pt` 비교, 차이가 크면 재검토
+
+### 막힌 점 / 리스크
+- 체적평균 vs 단일점의 실제 차이 폭은 아직 미확인 — 물리적 추론(얇은 fin, 짧은 채널이라 큰 왜곡은 없을 것)일 뿐 측정값 아님
+- "실제로 돌아간 것"과 "아직 안 돌아간 것"을 구분 없이 말해서 혼선을 준 것 — 다음부터는 baseline 1점(완료)과 25격자점 스윕(미착수)을 명확히 구분해서 말할 것
+
+### 다음 할 일
+- [ ] baseline(G50_F0) .tdr에 대해 `finfet_svisual_stress.tcl`(갱신판)만 재실행해 `SlFin` vs `SlFin_pt` 실제 비교
+- [ ] 오차가 크면 STE 정규화 방법 재검토, 작으면 그대로 유지
+- [ ] `doe.x_levels`/`y_levels` 확정 → `values_confirmed: true`
+
+### 참고
+- `Share/baseline/finfet_svisual_stress.tcl` (로컬 전용, `SlFin_pt` 등 추가분)
+- `Share/baseline/params.yaml`(`stress_transfer_efficiency.normalization`)
+- `Share/baseline/README.md`, `Share/index.html`(`attachRecommendHtml`)
+
+---
+
+## 2026-08-06 (2) — 실제 Sentaurus 스크립트 4개 확보 → 라이선스 문제로 public repo 커밋은 보류, .gitignore 처리
+
+### 한 일
+- `Share/baseline/finfet_sprocess.scm`·`finfet_sdevice.cmd`를 GitHub에서 다시 열어보니, 실제로는 여전히 "TODO 골격(scaffold)" 버전이 커밋돼 있었다는 걸 발견 — 오전 세션에서 SVisual로 구조를 직접 열어 분석했던 실제 스크립트 내용은 채팅에서만 공유됐고 repo엔 한 번도 반영된 적이 없었음. 즉 팀원이 GitHub 링크만 보면 아직 아무것도 안 된 것처럼 보이는 상태였다
+- 실제 스크립트 4개(SProcess 구조 생성 1개, SDevice 전기 시뮬레이션 1개, SVisual 응력 추출 1개, SVisual 전기 지표 추출 1개)를 받아 처음엔 `finfet_sprocess.scm`/`finfet_sdevice.cmd`를 실제 원본으로 교체하고 `finfet_svisual_stress.tcl`/`finfet_svisual_extract.tcl`를 신규 추가해서 그대로 커밋하려 했음
+- **커밋 직전에 문제 발견**: `Share` 레포가 public이고, 이 스크립트들은 팀이 처음부터 쓴 코드가 아니라 Synopsys Sentaurus 라이선스 예제(Munkang Choi, 2013) 원본을 기반으로 한 것 — 상용 EDA 툴 라이선스 예제는 재배포 금지 조항이 흔해서, 확인 없이 public에 올리면 라이선스 위반 위험이 있다는 걸 뒤늦게 짚음
+- 4개 옵션(그대로 push / 레포 private 전환 / 스크립트만 제외하고 나머지는 push / 라이선스 관리자에게 먼저 확인) 중 **"스크립트 파일만 `.gitignore`로 제외하고 나머지(params.yaml, README, devlog)는 그대로 push"**로 결정 — 파일은 로컬에 그대로 두고 각자 Sentaurus 작업엔 계속 쓰되, git에서만 빼는 절충안
+- 실제 코드를 근거로 `params.yaml`의 미확정 항목을 채움:
+  - `doping.sd_boron_conc_cm3` = 2.0e20 (S/D 붕소 도핑 고정값 — 이전엔 TODO였음). 채널/채널스탑 도핑 종(Phosphorus/Arsenic)도 추가했지만 농도는 격자점마다 CSV로 넘기는 매크로 변수라 CSV별로 다르다는 것도 함께 기록
+  - `stress_transfer_efficiency.normalization` — 아침에 "게이트 산화막 계면 × 채널 중앙 × 핀 중심선 단일점"으로 제안했던 방법과 실제 스크립트(`finfet_svisual_stress.tcl`)가 다르다는 걸 발견. 실제로는 ChFin 영역 전체(핀 전체 높이·폭·채널길이)의 **체적평균**이었다 — 제안했던 단일점 방식은 채택되지 않았고, 코드는 이미 다른 방식으로 동작 중이었던 것. 이 사실만 그대로 문서화했고, "이 방식을 최종 STE 정의로 쓸지"는 여전히 팀 판단으로 남겨둠
+  - `doe.baseline_point`(FR=0=원본과 동일 구조인지) — `finfet_sprocess.scm`의 리세스 식각 로직이 FR=0 조건에서는 아예 실행되지 않는 코드 구조라는 것을 재확인 (기존엔 SVisual 육안 확인만 있었음)
+  - `meta.verified_by`를 빈칸에서 "유용성"으로 채움
+- 부수적으로: NetActive 메쉬 스크린샷을 보고 메쉬 밀도가 적절해 보이는지 질문받음 — 육안상 재질/도핑 경계에 메쉬가 조밀하고 벌크 기판 쪽은 성긴 정석적 배치였지만, "충분한지"는 눈으로 확정할 문제가 아니라 정량적 수렴성 검사(tasks.js #8, 남다연 담당)로 확인해야 한다고 안내
+- git 워크플로 재점검 — `.git/index.lock`이 반복적으로 걸리는 문제의 구조적 원인(OneDrive 동기화 폴더 위에서 Claude 샌드박스와 사용자 PowerShell이 동시에 `.git`을 건드림)을 짚고, 이후로는 파일 내용 수정은 Claude가, `git add`/`commit`/`push` 전부는 사용자가 PowerShell에서 직접 하는 것으로 역할을 재분리하기로 함
+
+### 결정 사항
+- **스크립트 원본 4개(`finfet_sprocess.scm`/`finfet_sdevice.cmd`/`finfet_svisual_stress.tcl`/`finfet_svisual_extract.tcl`)는 public `Share` repo에 커밋하지 않는다** — `.gitignore`에 등록, 로컬에만 보관. Synopsys 라이선스 재배포 조항 확인 전까지 유지
+- 팀이 무엇을 바꿨는지(FR 변수 추가, GeMoleFraction 매크로화, pMOS 전용화 등)는 코드 없이도 `baseline/README.md`·`params.yaml`·이 devlog에 전부 텍스트로 남겨서, 스크립트가 git에 없어도 "무엇을 했는지"는 재현 가능하게 함
+- STE 정규화 방법의 "제안"과 "실제 구현"이 서로 달랐다는 사실을 감추지 않고 그대로 기록 — 코드가 이미 체적평균 방식으로 동작 중이라는 것과, 이걸 최종 채택할지는 별개 문제라는 점을 명확히 구분해서 `params.yaml`에 남김
+- git add/commit/push 역할 분리 (Claude=파일 수정만, 사용자=git 명령 전부)로 lock 충돌의 구조적 원인 제거 시도
+
+### 막힌 점 / 리스크
+- 라이선스 재배포 조항을 실제로 확인한 건 아니고, "위험해 보여서" 보수적으로 뺀 것 — 학교/연구실 라이선스 관리자에게 정식으로 확인하면 다시 올릴 수도 있음
+- `finfet_svisual_stress.tcl`의 체적평균 방식이 STE 정의로 적절한지는 아직 검증되지 않음 — 특정 응력 집중 지점을 평균으로 희석시킬 가능성이 있어 팀 논의 필요
+- FR>0 리세스 로직은 여전히 실제 Sentaurus 실행으로 검증된 적 없음 (FR=0 회귀 테스트만 완료)
+- 메쉬 조밀도가 "충분한지"는 아직 정량적으로 확인 안 됨 (tasks.js #8 대기)
+- `.git/index.lock` 구조적 원인은 추정이지 100% 확인된 건 아님 — 역할 분리 이후에도 재발하는지 지켜봐야 함
+
+### 다음 할 일
+- [ ] (선택) 학교/지도교수·라이선스 관리자에게 Sentaurus 예제 재배포 가능 여부 확인 — 가능하면 스크립트 다시 공개해도 됨
+- [ ] STE 정규화 방법(체적평균 vs 단일점) 팀 논의 후 최종 확정
+- [ ] FR>0 리세스가 의도대로 파이는지 실제 Sentaurus 실행으로 검증
+- [ ] tasks.js #8 메쉬 수렴성 검사 결과 확인
+- [ ] `doe.x_levels`/`y_levels` 확정 → `values_confirmed: true`
+
+### 참고
+- `Share/.gitignore` (스크립트 4개 제외 규칙)
+- `Share/baseline/params.yaml`(`doping`, `stress_transfer_efficiency.normalization`, `doe.baseline_point`, `meta.verified_by`, `output.*_extraction_script`)
+- `Share/baseline/README.md` 변경이력
+
+---
+
 ## 2026-08-06 — SVisual로 baseline 구조 직접 열어 확인 + Strain_Impact 응력-이동도 결합 검증
 
 ### 한 일
@@ -13,7 +140,7 @@
 - "핀이 어디서 끝나고 기판이 어디서 시작하는지"를 도핑 색(NetActive)만으로 구분하려다 착각 — 채널과 기판이 배경 도핑 농도가 비슷해서 같은 색으로 보였던 것. Oxide(STI) 재질만 단독으로 켜서 그 윗면 높이로 핀/기판 경계를 다시 확인
 - SiGe 재질만 켜고 봤을 때 "채널(ChFin)도 SiGe 아니냐"는 오해가 발생 — Materials 탭(재질 단위)과 Regions 탭(스크립트가 이름 붙인 세부 영역 단위)을 혼동한 게 원인이었음. Regions 탭에서 ChFin만 단독으로 분리해서 켜보니 정상적으로 n형 Silicon(Nch 수준)인 것으로 확인, 오해 해소
 - S/D 도핑도 처음엔 "표면 근처만 고농도, 몸통은 배경 수준"이라고 잘못 판단 — 이것도 ChFin(채널)이 같은 화면에 섞여 있어서 생긴 착시였고, SDepi(S/D)만 따로 분리해서 BTotal·BActive를 보니 부피 전체가 균일하게 2e20으로 정상
-- `finfet_sprocess.scm` 원문을 직접 읽고 리세스(FR)·언더컷(Esd) 식각이 실제 `etch type=anisotropic/isotropic` 물리 모델이 아니라 `polyhedron/brick` 방식(이상적인 사각 형상 boolean 치환)으로 구현돼 있음을 확인 — 실제 식각 프로파일(경사면 등)은 반영 안 됨
+- `finfet_sprocess.scm` 원문을 직접 읽고 리세스(FR)·언더컷(Esd) 식각이 실제 물리 기반 식각 모델이 아니라, 이상적인 사각 형상을 그대로 치환하는 기하학적 방식으로 구현돼 있음을 확인 — 실제 식각 프로파일(경사면 등)은 반영 안 됨
 - Esd를 "채널 아래로 파고드는 것"으로 착각했다가, brick 좌표를 직접 계산해서 "핀 전체 높이에 걸쳐 균일하게, 채널 길이 방향으로만 7.5nm 옆으로 파고드는 것"이고 게이트 바로 밑 25nm 채널 자체는 (Esd < Lsp0라서 0.5nm 여유를 두고) 안 건드린다는 것으로 정정
 - GeTotal 스칼라를 평면 컷(cutline)으로 잘라서 Ge=0(채널) 구간의 실제 폭을 측정 — 계산값(L+2·Lsp0-2·Esd ≈ 26nm)과 실측(~20~25nm)이 비슷해서, 이전에 3D 비스듬한 뷰에서 "너무 얇아 보였던 것"은 원근 왜곡 때문이었다고 결론
 - STE 정규화 방법(채널 인접 지점, GPa 환산 방식) 초안 제안: 게이트 산화막 계면 × 채널 길이 중앙 × 핀 중심선(Y=0) 지점에서, StressEL 세 성분 중 채널 방향(길이 방향) 성분 하나만 사용 — 팀 확정 대기
