@@ -155,7 +155,7 @@ BCAT DBCAT(질화막 두께) × 접합 도핑으로 확정하고 baseline 구조
 | `docs/reports/three-codes-comparison.md` | GAA 예제 코드 3종 비교분석 | BCAT 전환 시 |
 | `docs/reports/code-bc-line-analysis.md` | Nanowire SBTE/NEGF 줄별 분석 | BCAT 전환 시 |
 
-> BCAT 전환 시 제거한 코드 분석 3종은 GAA 나노와이어/나노시트 전용 SProcess 구조 스크립트를 분석한 것이다. BCAT는 3D 리세스 구조라 **Sentaurus Structure Editor(SDE)의 Scheme 스크립팅**으로 구조를 만들어야 하므로 직접 재사용할 수 없어 제거했다. Sentaurus 문법 학습 자료가 필요하면 git 히스토리에서 확인하거나, [프로젝트 기획서](reports/project-plan.md)의 SDE 학습 링크를 참고할 것.
+> BCAT 전환 시 제거한 코드 분석 3종은 GAA 나노와이어/나노시트 전용 SProcess 구조 스크립트를 분석한 것이다. BCAT는 3D 리세스 구조라 **Sentaurus Structure Editor(SDE)의 Scheme 스크립팅**으로 구조를 만들어야 하므로 직접 재사용할 수 없어 제거했다. Sentaurus 문법 학습 자료가 필요하면 git 히스토리에서 확인하거나, [프로젝트 기획서(구 DBCAT 단계, 아카이브)](old-projects/project-plan.md)의 SDE 학습 링크를 참고할 것.
 
 ## 이 이력에서 얻은 교훈
 

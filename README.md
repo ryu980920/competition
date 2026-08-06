@@ -84,27 +84,30 @@ FinFET pMOS의 **Embedded SiGe Source/Drain**(선택적 에피택시, in-situ �
 competition/
 ├── README.md                          # 현재 문서 — 프로젝트 개요 + 여정 요약
 ├── docs/
-│   ├── devlog.md                      # 날짜별 진행 로그 (시간순, 폐기된 경로도 그대로 보존)
+│   ├── devlog.md                      # 날짜별 진행 로그 (2026-08-04 현재 주제 확정 이후만)
+│   ├── devlog-archive-pre-finfet.md   # ⬅ 2026-08-07 분리: GAA-TFET~DRAM BCAT 시절 원본 로그(2026-07-28~08-02) 전체 보존
 │   ├── devlog-template.md             # 새 로그 작성용 템플릿
-│   ├── references.md                  # 참고 논문·자료 링크 — ⚠ 아직 결함 경계 프레이밍 기준으로 쓰여 있음, STE 전환 반영 필요
+│   ├── references.md                  # 참고 논문·자료 링크 — 섹션 3(임계두께 공식)은 STE 전환 반영해 정리됨. 나머지는 아직 ⚠ 미반영
 │   ├── topic-selection-history.md     # 주제 선정 이력 (검토·기각한 20개 후보 아카이브)
 │   ├── retrospective.md               # 이번 세션에서 실제로 잡아낸 검증 오류 사례집
 │   ├── FinFET_진행상황_우선순위_20260806.md  # 진행상황·우선순위 스냅샷(2026-08-06)
-│   └── reports/
-│       ├── project-plan.md            # ⚠ DBCAT 단계 기준 — FinFET 전환 반영 아직 안 됨
-│       ├── dram-basics.md             # ⚠ DBCAT 단계 기준 — FinFET 전환 반영 아직 안 됨
-│       └── award-analysis-and-topic-selection.md   # 수상작 분석 (2~3장은 여전히 유효)
-├── tcad/                               # ⚠ DRAM BCAT 시절 파일(sde_bcat_transistor.cmd 등) — 현재 FinFET 주제와 무관, 정리 필요
-│   ├── structure/
-│   ├── sdevice/
-│   └── results/
+│   ├── reports/
+│   │   └── award-analysis-and-topic-selection.md   # 수상작 분석 (2~3장은 여전히 유효, 현재도 참고)
+│   └── old-projects/                  # ⬅ 2026-08-07 신설: 이전 프로젝트(DRAM BCAT) 전용 문서·코드 통합 보관
+│       ├── project-plan.md            # 구 DBCAT 단계 통합 기획서 (아카이브, FinFET용 신규 문서는 아직 없음)
+│       ├── dram-basics.md             # 구 DRAM/BCAT 학습자료 (아카이브)
+│       └── tcad/                      # 구 DRAM BCAT SProcess/SDevice/SVisual 스크립트 (아카이브)
+│           ├── structure/
+│           └── sdevice/
 ├── figures/                            # 발표·보고서용 이미지
 └── deliverables/                       # 최종 포스터·발표자료
 ```
 
 > 실행·결과 공유는 별도 저장소 [`ryu980920/Share`](https://github.com/ryu980920/Share)에서 한다 — 이 `competition` 저장소는 여정·의사결정 기록용, `Share`는 실행·결과 공유용으로 역할이 분리돼 있다(2026-08-04 devlog 참고).
 >
-> `docs/reports/`와 `tcad/`는 아직 DBCAT 단계 잔재 그대로다. 오늘까지 README/devlog/topic-selection-history/retrospective/이 진행상황 문서는 갱신했지만, `references.md`·`reports/`·`tcad/` 정리는 다음 작업으로 남겨둠 (이 사실도 정직하게 기록해두는 것 — 실제로 무엇을 언제 했는지가 이 레포의 존재 이유다).
+> **2026-08-07 정리**: `docs/devlog.md`에 있던 이전 프로젝트(GAA-TFET~DRAM BCAT) 원본 로그를 `devlog-archive-pre-finfet.md`로 분리하고, `docs/reports/`의 DBCAT 전용 문서(`project-plan.md`, `dram-basics.md`)와 최상위 `tcad/` 폴더를 `docs/old-projects/`로 통합 이동했다 — 저장소를 처음 보는 사람이 지금 진행 중인 FinFET 프로젝트와 폐기된 이전 프로젝트를 혼동하지 않도록 하기 위함. 같은 날 devlog에 빠져 있던 **2026-08-05(결함 경계→STE 전환) 항목도 새로 작성해 추가**했다 — 실제로는 있었던 일인데 그날 로그를 안 남겨서 생긴 공백이었다.
+>
+> `references.md`는 아직 전체가 STE 프레이밍으로 갱신되지 않았다 (섹션 3만 이번에 반영). `docs/reports/`에 남은 `award-analysis-and-topic-selection.md`는 여전히 유효한 참고자료라 그대로 뒀다.
 
 ## 팀 역할 분담
 

@@ -1,10 +1,12 @@
 # 참고 자료
 
-> **현재 주제**: FinFET + Embedded SiGe Source/Drain 응력공학 — Ge 조성(%) × 리세스 깊이(nm) 결함 발생 경계(trade-off boundary) 지도
+> **현재 주제**: FinFET + Embedded SiGe Source/Drain 응력공학 — Ge 조성(%) × 리세스 깊이(nm) Stress Transfer Efficiency(STE) 지도
 >
 > 이 문서는 **현재 주제에 필요한 자료만** 담는다. 이전에 검토했다가 폐기한 GAA 나노시트 계열, DRAM BCAT 계열(코너 라운딩·DBCAT×접합 도핑 둘 다)의 참고문헌은 이 문서에서 뺐다 — git 히스토리로 복원 가능하며, 폐기 경위는 [`topic-selection-history.md`](topic-selection-history.md)에 서술돼 있다.
 >
 > **개정 (2026-08-04)**: DBCAT(질화막 두께)×접합 도핑에서 FinFET + Embedded SiGe S/D 응력공학으로 전환하며 전면 교체. 경위는 [devlog.md](devlog.md) 참고.
+>
+> ⚠️ **2026-08-06 기준 미반영**: 방법론은 2026-08-05에 결함 발생 경계(trade-off boundary)에서 Stress Transfer Efficiency(STE)로 다시 전환됐으나(경위는 [devlog.md 2026-08-05 항목](devlog.md) 참고), 아래 섹션 1·2·5~8은 아직 이전 프레이밍 기준 서술이 남아있다. 섹션 3(임계두께 공식)만 이번에 STE 전환을 반영해 정리했고, 나머지 전면 갱신은 별도 작업으로 남겨둔다 — 지금 안 된 것을 된 것처럼 적지 않기 위해 그대로 표시.
 >
 > **표기 원칙**: 각 항목에 `[확인됨]` 또는 `[미확인 — 원문 대조 필요]`를 반드시 표시한다. 이 세션 전체의 핵심 원칙이 "확인 안 된 건 확인 안 됐다고 표시한다"였다.
 
@@ -34,23 +36,20 @@
 - **역할**: eSiGe 엔지니어링 인접 연구
 - **상태**: `[미확인 — 원문 대조 필요]`
 
-## 3. 임계두께 공식 (등고선 경계선에 둘 다 적용)
+## 3. 폐기된 방법론 — 임계두께 공식 (People-Bean/Luryi-Suhir 결함 경계, 2026-08-05 폐기)
+
+> ⚠️ 아래 두 문헌([F1][F3])은 2026-08-05에 폐기된 "결함 발생 경계(trade-off boundary)" 방법론의 근거였다. baseline 실제 치수(fin 반폭 7.5nm)를 대입하니 Ge 42~100% 전 구간에서 결함이 "무제한 보호"로 계산되어 경계선 자체가 스윕 범위 안에 그려지지 않음을 확인, Stress Transfer Efficiency(STE)로 방법론을 전환했다 (경위는 [devlog.md 2026-08-05 항목](devlog.md) 참고). 지금은 실제 계산에 쓰지 않지만, 실제로 원문 대조·검증을 시도했던 기록이라 삭제하지 않고 남겨둔다. Luryi-Suhir([F2])는 폐기되지 않았다 — 아래 섹션 5로 옮겼다.
 
 **[F1]** R. People, J. C. Bean, "Calculation of critical layer thickness versus lattice mismatch for GeₓSi₁₋ₓ/Si strained-layer heterostructures," *Applied Physics Letters*, 47(3), 322-324 (1985). DOI: 10.1063/1.96206. (1986년 Erratum 있음)
 
-- **역할**: 평면(blanket) 기준 임계두께 근사식의 출처. 실무 근사식 **Tc ≈ 1.23 × x⁻³·⁰⁸ (nm, x = Ge 몰분율)**
-- **상태**: `[미확인 — 원문 대조 필요]` 이 근사식은 **원 논문 자체의 계산식이 아니라 2차 문헌의 근사 피팅식**이다. 원 논문의 실제 Fig.(임계두께 vs Ge 조성 그래프)에서 값을 읽어 대조해야 하는데, **페이월 때문에 검색으로는 원문을 구하지 못했다** — 학교에 논문 복사 신청한 상태(진행 중). 원문을 실제로 본 적 없이 숫자를 지어내는 것을 피하기 위해, 이 대조 자체를 미확인 상태로 명시해둔다
-
-**[F2]** S. Luryi, E. Suhir, "New approach to the high quality epitaxial growth of lattice-mismatched materials," *Applied Physics Letters*, 49(3), 140-142 (1986). DOI: 10.1063/1.97204.
-
-- **역할**: 좁은 메사(mesa/fin) 구조의 탄성 edge relaxation으로 임계두께가 늘어난다는 것의 출처. 경험식: **fin 폭 W < 15×Tc(People-Bean 평면값)** 이면 결함 없이 버팀
-- **상태**: `[미확인 — 원문 대조 필요]` 이것도 2차 문헌 요약이며, 원 논문의 실제 해석적 표현식은 아직 확인 못함. (DOI를 처음에 10.1063/1.97316으로 잘못 추측했다가 재검색으로 정정한 사례 — [retrospective.md](retrospective.md) 참고)
+- **역할(폐기됨)**: 평면(blanket) 기준 임계두께 근사식의 출처. 실무 근사식 **Tc ≈ 1.23 × x⁻³·⁰⁸ (nm, x = Ge 몰분율)** — 결함 경계 방법론의 핵심 근거였음
+- **상태**: `[미확인 — 원문 대조 필요]` 이 근사식은 **원 논문 자체의 계산식이 아니라 2차 문헌의 근사 피팅식**이다. 원 논문의 실제 Fig.(임계두께 vs Ge 조성 그래프)에서 값을 읽어 대조해야 하는데, **페이월 때문에 검색으로는 원문을 구하지 못했다** — 학교에 논문 복사 신청한 상태(진행 중). 방법론 폐기로 이 대조의 우선순위는 낮아졌으나, 원문을 실제로 본 적 없이 숫자를 지어내는 것을 피하기 위해 미확인 상태 그대로 유지
 
 **[F3]** Hartmann et al., "Critical thickness for plastic relaxation of SiGe on Si(001) revisited," *Journal of Applied Physics*, 110, 083529 (2011).
 
-- **역할**: **People-Bean 근사식의 신뢰도를 검증한 논문.** Ge 12/22/32/42/52%에서 실제로 SiGe를 성장시키고 XRD로 실측 임계두께를 측정
-- **핵심 결과**: **Ge 22% 이상 구간에서는 실측 임계두께가 People-Bean 예측치보다 약 2배 더 높게 나옴** — People-Bean 근사식이 상당히 보수적(과소평가)이라는 실측 근거. 등고선 해석 시 "이중으로 보수적으로 잡아도 안전한 영역"이라는 프레이밍에 직접 사용
-- **상태**: `[확인됨]` 논문 존재·핵심 결과(XRD 실측 vs People-Bean 비교)까지 확인. 세부 수치(정확한 배율 곡선)는 원문 확인 시 보강 예정
+- **역할(폐기됨)**: **People-Bean 근사식의 신뢰도를 검증한 논문.** Ge 12/22/32/42/52%에서 실제로 SiGe를 성장시키고 XRD로 실측 임계두께를 측정 — People-Bean 기반 등고선 해석 보강용이었음
+- **핵심 결과**: **Ge 22% 이상 구간에서는 실측 임계두께가 People-Bean 예측치보다 약 2배 더 높게 나옴** — People-Bean 근사식이 상당히 보수적(과소평가)이라는 실측 근거. 결함 경계 방법론을 계속 썼다면 "이중으로 보수적으로 잡아도 안전한 영역"이라는 프레이밍에 썼을 결과
+- **상태**: `[확인됨]` 논문 존재·핵심 결과(XRD 실측 vs People-Bean 비교)까지 확인됐고 이 확인 자체는 유효한 완료 작업. 다만 방법론 폐기로 STE 계산에는 더 이상 쓰이지 않음
 
 ## 4. 관련 특허 — 주의 사례 포함
 
@@ -60,12 +59,17 @@
 - **상태**: `[확인됨 — 단, 우리 근거로는 부적합]` 정정 경위는 [retrospective.md](retrospective.md) 참고
 - **대체 후보**: 이 특허가 인용한 **Kim et al., "Increased critical thickness for high Ge-content strained SiGe-on-Si using selective epitaxial growth," Applied Physics Letters, 97, 262106 (2012)** [X1-alt] — SEG(우리 공정과 동일 메커니즘)를 다뤄 훨씬 정확히 맞는 대체 후보. `[미확인 — 원문 대조 필요]`
 
-## 5. 물리 이해용 — Ge%·리세스 깊이가 응력에 미치는 영향
+## 5. 물리 이해용 — Ge%·리세스 깊이가 응력(및 STE)에 미치는 영향
 
-- **Ge 조성**: Vegard's law에 따라 Ge%가 높을수록 SiGe의 자연 격자 상수가 커진다. Si 기판 위에 정합 성장하면서 억지로 눌린 압축 변형이 되고, 이 변형이 채널 실리콘까지 전달돼 정공 이동도를 높인다. Ge%가 높을수록 변형 에너지가 커지지만, 버틸 수 있는 두께(임계두께)는 줄어든다 ([F1] 참고).
+**[F2]** S. Luryi, E. Suhir, "New approach to the high quality epitaxial growth of lattice-mismatched materials," *Applied Physics Letters*, 49(3), 140-142 (1986). DOI: 10.1063/1.97204.
+
+- **역할 (현재도 사용)**: 좁은 메사(mesa/fin) 구조일수록 탄성 edge relaxation이 커진다는 것의 출처. 경험식: **fin 폭 W < 15×Tc(People-Bean 평면값)** 이면 결함 없이 버팀. 결함 경계 방법론([F1][F3])에서는 "경계선이 어디냐"를 정하는 데 썼지만, **지금 STE 방법론에서는 이 문헌이 설명하는 현상 자체가 핵심 물리**다 — fin이 좁아서 결함이 안 생기는 것(탄성 완화)과, 그 탄성 완화가 채널에 전달되는 유효 응력을 깎아먹는 것은 같은 현상의 양면이라는 게 지금 프로젝트의 핵심 통찰 (`competition/README.md` "문제 배경" 참고)
+- **상태**: `[미확인 — 원문 대조 필요]` 원 논문의 실제 해석적 표현식은 아직 확인 못함(2차 문헌 요약 기준). (DOI를 처음에 10.1063/1.97316으로 잘못 추측했다가 재검색으로 정정한 사례 — [retrospective.md](retrospective.md) 참고)
+
+- **Ge 조성**: Vegard's law에 따라 Ge%가 높을수록 SiGe의 자연 격자 상수가 커진다. Si 기판 위에 정합 성장하면서 억지로 눌린 압축 변형이 되고, 이 변형이 채널 실리콘까지 전달돼 정공 이동도를 높인다. Ge%가 높을수록 명목 응력(변형 에너지)은 커지지만, fin이 좁을수록 탄성 완화([F2])로 실제 채널 전달분(STE)은 그만큼 늘지 않을 수 있다.
 - **리세스 깊이**: 격자 차이와 무관한 순수 기하학적 변수. 깊을수록 SiGe 부피·채널 근접성이 늘어 응력 전달이 세지지만, 무한정 좋아지진 않는다 — "적당한 SiGe 오버필이 최대 응력"이라는 비단조적 결과가 40nm PMOS TCAD 문헌에서 확인됨. `[미확인 — 원문 대조 필요]` (2차 요약 기준)
-- **"Orthogonal(독립)"과 "트레이드오프"는 모순 아님**: 문헌에서 "Ge%와 리세스 깊이가 orthogonal한 설계 손잡이"라는 표현은 *성능 설계 관점*(각자 다른 성능 지표를 담당, 독립적으로 조작 가능)에서 하는 말이고, *신뢰성/결함 발생 관점*에서는 두 값이 함께 변형 에너지 총량을 정하므로 트레이드오프가 맞다.
-- **FinFET 구속 효과**: FinFET은 fin이라는 좁은 구조라 SiGe가 옆면까지 둘러싸여 자란다(공간적 구속). 이 구속 구조가 평면(blanket) 기준 임계두께보다 더 두껍게/높은 Ge%로도 결함 없이 버틸 수 있다는 것이 [F2]의 물리적 근거다.
+- **"Orthogonal(독립)"과 "트레이드오프"는 모순 아님**: 문헌에서 "Ge%와 리세스 깊이가 orthogonal한 설계 손잡이"라는 표현은 *성능 설계 관점*(각자 다른 성능 지표를 담당, 독립적으로 조작 가능)에서 하는 말이고, *응력 전달 관점*에서는 두 값이 함께 fin 내부 변형 분포를 정하므로 상호작용이 있을 수 있다.
+- **FinFET 구속 효과**: FinFET은 fin이라는 좁은 구조라 SiGe가 옆면까지 둘러싸여 자란다(공간적 구속). 이 구속 구조가 평면(blanket) 기준보다 결함 없이 버티는 능력은 키우지만([F2]), 동시에 탄성 완화 때문에 채널로 전달되는 유효 응력은 깎는다 — baseline(fin 반폭 7.5nm)에서 결함 경계가 사실상 사라진 이유이자, STE가 낮게 나올 수 있는 이유이기도 하다.
 
 ## 6. 툴 레퍼런스
 
@@ -84,7 +88,7 @@
 
 ## 8. 팀 내부 문서
 
-- [프로젝트 통합 기획서](reports/project-plan.md) — `[미갱신]` 아직 DBCAT 단계 내용 그대로. FinFET+SiGe 기준 재작성 필요
-- [DRAM 기초 학습자료](reports/dram-basics.md) — `[미갱신]` 아직 DBCAT/DRAM 단계 내용 그대로. FinFET 학습자료로 교체 또는 신규 작성 필요
+- [프로젝트 통합 기획서 (구 DBCAT 단계, 아카이브)](old-projects/project-plan.md) — DBCAT 단계 내용 그대로 보존. FinFET+SiGe용 신규 기획서는 아직 없음
+- [DRAM 기초 학습자료 (구 DBCAT 단계, 아카이브)](old-projects/dram-basics.md) — DBCAT/DRAM 단계 내용 그대로 보존. FinFET 학습자료는 아직 없음
 - [주제 선정 이력](topic-selection-history.md) — 검토·기각한 20개 후보 아카이브
 - [검증 오류 회고](retrospective.md) — 이 전환 과정에서 실제로 잡아낸 검증 오류 사례
