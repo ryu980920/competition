@@ -6,6 +6,35 @@
 
 ---
 
+## 2026-08-10 — #14(Ge=50% 중간열) 첫 스윕 실행 + config.yaml 파라미터명 오류 발견·수정
+
+### 한 일
+- #14(유용성 담당, Ge=50% 중간열) 첫 실행 결과 CSV(SWB 변수표 형식, Ge=0.5/FR=0~0.035um 5점)를 확인 — FR=0, FR=10nm 두 점만 전기적 지표(IdSat_norm/SSSat/VtiSat 등)가 채워져 있고, FR=20/30/35nm 세 점은 구조·응력 지표(SlFin 등)만 있고 전기적 지표는 `x`(미추출) 상태
+- 이 CSV를 `analysis/build.py`로 인식시키려다 실패 원인 확인: `analysis/config.yaml`의 `swb.x_param/y_param/map`이 실측 검증 전 추측값(`GeMoleFraction`/`FR_nm`/`Stress`/`Vth`)으로 남아있었는데, 실제 SVisual export 컬럼명은 `Ge`/`FR`/`SlFin`/`SlFin_pt`/`VtiSat` 등이라 전혀 안 맞았음
+- `analysis/config.yaml`을 실제 컬럼명으로 수정하고, `build.py`의 `read_swb()`에 단위 변환 로직 추가 — Ge 컬럼이 몰분율(0~1)로 export돼 있어 ×100 → Ge_percent, FR 컬럼이 um 단위(0.01 등)로 export돼 있어 ×1000 → FR_nm. `stress_GPa`는 SlFin_MPa(체적평균) 기준으로 잠정 계산하도록 하되, SlFin_pt_MPa(계면 단일점)도 원본 그대로 같이 보존하도록 map에 둘 다 등록 — 업로드된 실제 CSV로 파싱 재검증해서 5점 전부 정상 인식 확인
+- FR=0→10nm 구간 전기적 지표 트렌드 확인: IdSat_norm +9.4%, SSSat -25.8%, \|VtiSat\| 소폭 감소 — 8/7 FR=15nm 검증(IdSat_norm +12.9%, SSSat -32.9%)과 같은 방향
+- STE 정규화 두 방식(SlFin 체적평균 vs SlFin_pt 계면 단일점) 재점검: 이번 CSV의 FR=0 행 숫자(SlFin=-2262, SlFin_pt=-3482, SlFin_pt2=-3508, conv_pct=-0.8%)가 8/6에 검증해둔 G50_F0 baseline과 정확히 일치 — 파이프라인 재현성 확인. 나머지 FR=10/20/30/35nm 네 점도 SlFin_pt_conv_pct가 -0.7%로 계속 안정적이어서, "_pt 방식이 창 크기 노이즈가 아니라 신뢰할 수 있는 값"이라는 8/6 결론이 baseline 한 점이 아니라 FR 전 구간에서 유지됨을 추가 확인
+- 덤으로 발견한 경향: SlFin_diff_pct(체적평균 vs 계면점 격차)가 FR=0의 -53.9%에서 FR=35nm의 -33.3%까지 FR이 커질수록 점점 줄어듦 — 두 정규화 방식의 값이 리세스가 깊어질수록 서로 가까워지는 경향. 최종 STE 정의 결정 시 참고할 만한 관찰
+
+### 결정 사항
+- `analysis/config.yaml`/`analysis/build.py` 수정은 PR 없이 바로 main에 반영 (사용자 확정 — 다른 팀원이 GitHub 사용에 익숙하지 않아 기존 관행대로 진행)
+- STE 정규화는 기존 결정(8/6) 그대로 유지 — SlFin/SlFin_pt 두 방식을 매 실행마다 병행 수집, 25격자점 다 모이면 최종 결정
+
+### 막힌 점 / 리스크
+- #14는 아직 미완료 — FR=20/30/35nm 세 점의 전기적 지표(SDevice IdVg 추출)가 안 돼 있음. 구조/응력 데이터만으로는 task 완료 기준(`build.py`가 담당 열 격자점 전부를 인식)을 못 채움
+- `config.yaml`이 실측 데이터 없이 추측으로 작성됐다가 첫 실행에서야 오류가 드러난 사례 — 앞으로 새 변수/컬럼을 config에 적을 때는 실제 export 샘플이 없으면 TODO로 명시해두는 게 나을 듯
+
+### 다음 할 일
+- [ ] FR=20/30/35nm 세 점 SDevice 전기적 지표 재추출
+- [ ] 5점 전부 완료되면 `runs/유용성_G중간열.csv`로 저장 → `python analysis/build.py`로 인식 확인 → push
+- [ ] `analysis/progress.json` #14 체크는 5점 전부 완료된 뒤에
+
+### 참고
+- `Share/baseline/README.md` 변경이력(2026-08-10 항목), `Share/analysis/config.yaml`, `Share/analysis/build.py`
+- 근거 CSV: `g_localhost_103560_0.tmp.csv`(업로드분, G50 중간열 FR 스윕)
+
+---
+
 ## 2026-08-07 (2) — FR>0(15nm) 실제 Sentaurus 실행 검증 완료
 
 ### 한 일
