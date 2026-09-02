@@ -25,11 +25,11 @@
 - SDE의 filleting/edge blending 기능은 더 이상 핵심 강점 근거가 아님. DBCAT은 표준 3D 리세스 에치백 파라미터로 구현
 - 실행 순서에 체크포인트 추가: DBCAT 단독 스윕에서 주효과가 무시할 수준이면, 전체 2차원 격자 전에 재검토
 - 가설이 빗나갈 경우의 대비 시나리오를 3가지로 구체화 (A. 독립, B. DBCAT 무효과, C. DBCAT 유효하나 대가 큼) — project-plan.md 5-4절 참고
-- "2차원 등고선을 읽는 법" 절을 project-plan.md 4-4절에 신설. 예시 그림(독립/시너지/트레이드오프 3패턴)을 `figures/dbcat-doping-contour-example.png`로 추가
+- "2차원 등고선을 읽는 법" 절을 project-plan.md 4-4절에 신설. 예시 그림(독립/시너지/트레이드오프 3패턴)은 현재 `old-projects/figures/dbcat-doping-contour-example.png`에 보존
 
 ### 수정한 문서
 - `README.md`, `docs/reports/project-plan.md`, `docs/reports/dram-basics.md`, `docs/references.md` — Rfillet 관련 서술 전체를 DBCAT 기준으로 재작성
-- `figures/dbcat-doping-contour-example.png` — 2차원 등고선 예시 그림 추가
+- `old-projects/figures/dbcat-doping-contour-example.png` — 2차원 등고선 예시 그림 보존 위치
 
 ### 막힌 점 / 리스크
 - DBCAT × 접합 도핑 결합에 대한 선례 미확인은 완전한 검증이 아니므로, baseline 구조 재현 착수 전 한 차례 더 좁혀서 검색할 것
@@ -37,7 +37,7 @@
 
 ### 다음 할 일
 - [ ] DBCAT × 접합 도핑 결합 선례 재검색 (좁혀서, 최종 확인)
-- [ ] 팀 3인 공통 배경학습 — 개정된 [DRAM 기초 학습자료](reports/dram-basics.md) 완독
+- [ ] 팀 3인 공통 배경학습 — 개정된 [DRAM 기초 학습자료](old-projects/dram-basics.md) 완독
 - [ ] 학교 라이선스 예제 폴더에서 DRAM/BCAT/리세스 게이트 예제 존재 여부 확인 (최우선)
 - [ ] baseline 구조 재현 착수
 
@@ -56,7 +56,7 @@
 - `docs/references.md` 전면 재작성 — BCAT 관련 자료만 유지(베이스라인 B1, 접합 저도핑 근거 R1·R2, 인접 연구 N1~N4, 툴 레퍼런스 T1~T4, 수상작). GAA 계열 문헌은 전부 이력 문서로 이동
 - `docs/reports/project-plan.md` 신규 작성 — 주제·이유·설계방향·확인사항·결론전략 6장 구성의 통합 기획서
 - `docs/reports/dram-basics.md` 신규 작성 — 배경지식 0 기준 DRAM 학습자료. 9장 + 용어사전 28개 + 자가점검 12문항
-- `docs/reports/award-analysis-and-topic-selection.md` 헤더 갱신 — 2~3장(수상작 목록·패턴)은 유효하나 5~6장 결론(GAA Halo Doping 추천)은 폐기됨을 명시
+- `docs/archive/award-analysis-and-topic-selection.md` 헤더 갱신 — 2~3장(수상작 목록·패턴)은 유효하나 5~6장 결론(GAA Halo Doping 추천)은 폐기됨을 명시
 - GAA 전용 코드 분석 3종(`nsfet-code-analysis.md`, `three-codes-comparison.md`, `code-bc-line-analysis.md`) 삭제 — BCAT는 SDE Scheme 기반 3D 리세스 구조라 GAA 나노시트 SProcess 스크립트를 직접 재사용할 수 없음. 삭제 사실은 이력 문서에 기록(git 히스토리로 복원 가능)
 
 ### 조사 결과 (기획서에 반영)
@@ -79,7 +79,7 @@
 - 코너 영역 국소 메쉬 정밀화가 필요한데, 필렛 반경 극단값에서 메쉬 생성이 실패할 가능성
 
 ### 다음 할 일
-- [ ] 팀 3인 공통 배경학습 — [DRAM 기초 학습자료](reports/dram-basics.md) 완독 + 자가점검 12문항
+- [ ] 팀 3인 공통 배경학습 — [DRAM 기초 학습자료](old-projects/dram-basics.md) 완독 + 자가점검 12문항
 - [ ] 베이스라인 논문(MDPI 2022) 팀 전원 정독
 - [ ] **학교 라이선스 예제 폴더에서 DRAM/BCAT/리세스 게이트 예제 존재 여부 확인 (최우선)**
 - [ ] SDE Scheme 스크립팅 기초 학습, 간단한 3D 리세스 구조 생성 실습
@@ -141,9 +141,9 @@
 - "재현+확장(Lov 스윕, 적층수 3→5 확장)" 방안을 우선 검토했으나, 이는 이미 검증된 파라미터 범위를 넓히는 수준이라 독창성 확보에 근본적 한계가 있다고 재판단
 - 시트별 변동성(적층 시 Ambipolar 억제 유지 여부)으로 재차 보완을 시도했으나, 이마저 Feng et al., "Impact of Process Variability on Threshold Voltage in Vertically-Stacked Nanosheet TFET," *Silicon* (2023)이 이미 다룬 문제임을 확인
 - GAA 나노시트·TFET·DRAM 결합 전반이 이미 수년간 여러 연구그룹이 파라미터 단위로 논문화한 성숙 분야임을 재확인. "전 세계에 겹치는 문헌이 전혀 없어야 한다"는 기준 자체가 이 분야에서는 비현실적이라고 결론
-- 원래 [`award-analysis-and-topic-selection.md`](reports/award-analysis-and-topic-selection.md) 5~6절에서 최종 추천했던 **방향 A(GAA 시트별 차등 Halo Doping)**로 복귀 결정 — 완성 리스크 없음(BTBT 수렴 문제 회피), 본인 SCE 프로젝트(Halo Doping으로 SS 561→89.9mV/dec 개선) 데이터와 직결
+- 원래 [`award-analysis-and-topic-selection.md`](archive/award-analysis-and-topic-selection.md) 5~6절에서 최종 추천했던 **방향 A(GAA 시트별 차등 Halo Doping)**로 복귀 결정 — 완성 리스크 없음(BTBT 수렴 문제 회피), 본인 SCE 프로젝트(Halo Doping으로 SS 561→89.9mV/dec 개선) 데이터와 직결
 - Baseline 구조 논문(MDPI 2021)이 "기존 planar의 halo implant나 FinFET의 PTS doping은 GAA NW/NS 구조엔 그대로 못 쓴다"고 명시한 것을 확인(적층 시트 간 이온주입 경로 shadowing, 초박막 릴리즈 시트의 구조 손상 위험) → 구현 방법을 **halo doping → 블랭킷 웨이퍼 단계(핀 패터닝·릴리즈 이전)의 다중 에너지 이온주입 기반 층별 차등 Vt-implant**로 수정
-- 이 방법이 [수상작 분석](reports/award-analysis-and-topic-selection.md)의 BCAT 수상작(Multiple-energy ion implantation, 사업단장상)과 같은 장르로 실제 수상 전례가 있음을 확인
+- 이 방법이 [수상작 분석](archive/award-analysis-and-topic-selection.md)의 BCAT 수상작(Multiple-energy ion implantation, 사업단장상)과 같은 장르로 실제 수상 전례가 있음을 확인
 
 ### 한 일 (2단계 — RDF 리스크 발견 및 WFM 비교 필요성 도출)
 - 외부 피드백으로 "다중 에너지 임플란트가 실제 양산 불가능"하다는 지적을 받음 — 근거: (1) 상위 시트를 관통하는 고에너지 이온에 의한 격자 손상, (2) Random Dopant Fluctuation(RDF), (3) 10nm급 층 간격 대비 임플란트 스트래글로 인한 타겟팅 한계

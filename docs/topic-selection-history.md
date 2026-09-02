@@ -2,7 +2,7 @@
 
 > 이 문서는 **최종 주제(FinFET + Embedded SiGe Source/Drain 응력공학, Ge 조성 × 리세스 깊이)에 도달하기까지 검토하고 기각한 모든 후보의 기록**이다. DRAM BCAT 코너 라운딩(Rfillet) × Elevated S/D 접합 결합, 그리고 그 뒤를 이은 DBCAT(질화막 두께) × 접합 도핑도 한때는 "최종"이었으나 모두 이 문서의 기각 후보로 편입됐다 — 아래 표의 #19, #20 참고.
 >
-> 저장소의 다른 문서들은 전부 현재 주제 기준으로 정리되어 있고, 과거 이력은 이 문서 하나에 모아두었다. 날짜별 진행 로그는 [`devlog.md`](devlog.md)에 시간순으로 남아 있다.
+> 현재 결과는 [`reports/경진대회_보고서.pdf`](reports/경진대회_보고서.pdf)와 [`reports/project-summary.md`](reports/project-summary.md)를 기준으로 한다. 이 문서와 `archive`, `old-projects`, 날짜별 [`devlog.md`](devlog.md)는 의도적으로 과거 판단과 폐기 경로를 보존한다.
 >
 > **이 기록을 남기는 이유**: 검토한 후보가 왜 전부 기각됐는지가 곧 "왜 하필 이 주제인가"의 근거다. 경진대회 심사에서 독창성을 설명할 때, 그리고 향후 유사 아이디어가 다시 떠올랐을 때 같은 검증을 반복하지 않기 위해 보존한다.
 
@@ -34,7 +34,7 @@
 
 ## 1단계 — GAA-TFET 경로 (2026-07-28 ~ 07-30)
 
-팀 포트폴리오(TCAD PMOS 공정 최적화, 30/60nm NMOS SCE 개선, QCLAS 학회 발표, LAS 프로젝트)를 바탕으로 수상작 11건을 분석한 뒤([수상작 분석 보고서](reports/award-analysis-and-topic-selection.md)), 처음에는 "GAA + HKMG 최적화"를 검토했으나 산업 표준 조합이라 기각했다.
+팀 포트폴리오(TCAD PMOS 공정 최적화, 30/60nm NMOS SCE 개선, QCLAS 학회 발표, LAS 프로젝트)를 바탕으로 수상작 11건을 분석한 뒤([수상작 분석 기록](archive/award-analysis-and-topic-selection.md)), 처음에는 "GAA + HKMG 최적화"를 검토했으나 산업 표준 조합이라 기각했다.
 
 이후 방향 A(시트별 차등 도핑)와 방향 B(GAA-TFET)를 비교해 **GAA-TFET(Line-Tunneling + 비대칭 도핑 기반 Ambipolar 억제)**으로 진행을 시작했다. 그러나 baseline 논문을 조사하던 중 **Jain et al., "Performance Analysis of Vertically Stacked Nanosheet Tunnel Field Effect Transistor with Ideal Subthreshold Swing," *Silicon* (2022)**가 우리 계획 구조(3층 나노시트, Line-Tunneling형 extended source/drain, 도핑 조건)와 사실상 동일함을 발견했다.
 

@@ -2,6 +2,57 @@
 
 새 항목은 위(최신순)에 추가한다. 작성 형식은 [`devlog-template.md`](devlog-template.md) 참고.
 
+> **최종 결과 기준**: 현재 결론은 [최종 보고서 PDF](reports/경진대회_보고서.pdf)와 [결과 요약](reports/project-summary.md)을 따른다. 아래 과거 로그에는 당시의 가설·미확인 사항·초안 해석을 보존했다. 이후 수정된 해석과 핀 폭 데이터 매핑 확인 사항은 다음 두 항목에 정리했다.
+
+## 2026-09-02 — 최종 보고서 확정 및 저장소 결과물 정리
+
+### 최종 산출물
+
+팀이 확정한 13쪽 결과 보고서 **「FinFET pMOS Embedded SiGe S/D의 응력 전달 특성 및 리세스 설계창 분석」**을 `docs/reports/경진대회_보고서.pdf`로 반영했다. 작성 팀은 폭주기관차(유용성·남다연·주수빈)다. 사용자 제공 PDF 원본을 그대로 사용했으며, 최초 반영 커밋은 [`bb63a78`](https://github.com/ryu980920/competition/commit/bb63a78b0c700def7c2e34e23cba95b4fab8b4e9)이다.
+
+- 파일 크기: 910,168 bytes, 13쪽
+- SHA-256: `08caf2590bd8833575eee48e9ffbe3614d135225bb088f05a9471ccb7fa96f01`
+- 최종 결과를 읽는 경로: 저장소 README → 결과 요약 → 최종 PDF
+
+### 저장소 정리
+
+최종 보고서와 혼동되는 산출물을 없애고, 현재 결과와 개발 당시 기록을 구분했다.
+
+- 구버전 `docs/reports/경진대회_보고서.docx`를 삭제했다. 이전 파일은 Git 커밋 이력에서 복구할 수 있다.
+- `docs/reports/`에는 최종 PDF와 결과 요약만 남겼다.
+- 초기 수상작·주제 조사와 8월 6일 진행상황 문서는 [`docs/archive/`](archive/README.md)로 옮겼다.
+- 이전 BCAT 주제의 그림을 [`docs/old-projects/`](old-projects/README.md) 안으로 옮겼다. 당시 계획·코드·학습 자료는 이력으로 보존했다.
+- 참고문헌은 최종 보고서에서 사용한 네 편으로 정리하고, 문서 이동에 따른 내부 링크를 수정했다.
+- 과거 개발 로그는 그대로 남기되, 최종 결과와 달라진 해석을 이 문서 상단에서 확인할 수 있도록 했다.
+
+## 2026-08-31~2026-09-02 — 보고서 근거 재검토와 결과 중심 수정
+
+### 검토 범위와 산출 흐름
+
+기존 보고서와 팀원의 수정본을 데이터·저장소 기록과 대조하고, 보고서 수정본을 거쳐 최종 PDF를 확정했다. 이 과정은 기존 TCAD 결과의 재검토와 보고서 작성 작업이며, 새로운 시뮬레이션을 수행한 기록은 아니다.
+
+보고서의 중심을 **Ge 5수준(30·40·50·60·70%) × FR 5수준(0·10·20·30·35 nm)의 25개 격자점**으로 정리했다. 이 결과에서 채널 절대 응력·STE·Ioff의 2차원 지도와 STE–SSlin trade-off overlay를 만들고, Ge 증가와 리세스 심화에 따른 이득·손실을 함께 설명하도록 구성했다. Ge 50%의 FR 15·22 nm 추가 결과는 설계창 경계를 확인하는 근거로 사용했다.
+
+### 주요 해석 수정
+
+- **STE의 의미**: 고정 기준 `M = 180 GPa`와 Ge 조성으로 정규화한 비교 지표로 정의했다. 같은 Ge 조건에서 FR 변화에 따른 STE 증가·포화 양상을 중심으로 설명하고, Ge 증가 효과는 절대 응력과 전기적 지표도 함께 확인했다.
+- **교호작용·회귀**: 비유의한 t값을 두 변수의 독립성으로 해석한 초안 문장을 수정했다. 회귀 계수·t값·R²를 앞세운 설명은 최종 본문에서 제외하고, 격자점과 등고선에서 확인되는 변화로 두 변수의 관계를 설명했다.
+- **누설 증가 해석**: Strain_Impact를 꺼도 FR 증가에 따라 SSlin·DIBL·Ioff가 악화되는 결과와 높은 drain 전압에서 커지는 OFF-state 전류 차이를 근거로, deep recess의 열화를 정전제어 약화와 연관 지어 해석했다. 과거 로그의 ChStop 제거·BTBT 증폭 가설을 최종 보고서의 확정 원인으로 사용하지 않았다. Strain_Impact OFF는 BTBT 모델 OFF와 구분했다.
+- **Ge 증가의 전기적 변화**: SSlin·DIBL이 ‘불변’이라는 표현을 실제 데이터에 맞게 개선 경향으로 수정했다. 예를 들어 FR 0 nm에서 Ge 30→70%일 때 SSlin은 80.4→76.6 mV/dec, DIBL은 89.3→69.3 mV/V로 감소한다.
+- **핀 폭 비교**: 헤더 없는 원자료의 Ge·FR·폭 매핑은 사용자가 확인했다. 이후 최종 보고서에서는 확인된 매핑을 사용했다. FR 0 nm에서 좁은 fin의 SSlin이 65~66 mV/dec인 결과를 FR ≤ 20 nm 전체로 일반화하지 않았고, 두 폭의 비교를 민감도 분석으로 정리했다.
+
+### 설계창의 결과 근거
+
+Ge 50%에서 FR 15·20 nm의 STE는 관측 최대값의 약 98.5·99.6%에 도달하고, gmSat은 FR 20 nm에서 최대다. 반면 FR 20→22 nm에서는 STE가 0.667→0.668로 거의 늘지 않는 동안 Ioff는 약 두 배 증가한다. 25개 격자점에서도 같은 Ge 조건의 STE는 FR 20 nm 전후부터 포화하고 전기적 열화는 계속 커진다. 이 결과를 종합해 **FR 15~20 nm를 본 구조의 설계창**으로 제시했다.
+
+단위가 다른 기울기를 직접 나눈 초안의 이득/대가 계산과, 이후 검토한 상대 변화율 기반 무차원 비는 최종 설계창의 판단 지표에서 제외했다. 듀얼축 그래프와 무차원 비 그래프도 덜어내고, 기존 2차원 지도와 실제 지표 변화가 중심이 되도록 정리했다.
+
+### 최종 보고서 서술·구성
+
+결론은 ‘프로젝트에서 수행한 일 → 25개 격자점에서 추출한 자료 → 자료에서 확인한 양상 → 설계창 결과’의 순서로 서술했다. 본문은 확인된 결과와 그 의미를 설명하고, 해석 범위에 관한 사항은 적용 범위와 한계에 모았다. 보고서 수정 과정에서는 맑은 고딕을 기준으로 제목·부제목·본문·그림 제목·설명의 같은 수준 서식을 통일했다.
+
+---
+
 > **주제 선정 이력 안내**: 이 프로젝트는 GAA-TFET에서 시작해 여러 차례 방향을 바꾼 끝에 **FinFET + Embedded SiGe Source/Drain 응력공학**으로 확정되었다 (직전까지는 DRAM BCAT였으나 2026-08-04에 다시 전환됨). 검토·기각한 후보 20개의 전체 목록과 사유는 [`topic-selection-history.md`](topic-selection-history.md)에 정리되어 있다. 아래 로그는 **2026-08-04(현재 주제 확정) 이후만** 담는다 — 그 이전 경로(GAA-TFET, DRAM BCAT)의 날짜별 원본 로그는 [`devlog-archive-pre-finfet.md`](devlog-archive-pre-finfet.md)에 그대로 보존돼 있다.
 
 ---
@@ -423,7 +474,7 @@ Esd 는 응력원과 채널 사이 가로 거리라 5→10nm 면 2배 차이다.
 ### 한 일
 - 팀원이 GitHub의 `docs/reports/` 폴더를 열어보고 "지금 프로젝트랑 내용이 다르다"고 지적 — `dram-basics.md`/`project-plan.md`가 여전히 DBCAT 시절 문서로 남아있었고, `devlog.md`도 GAA-TFET~DRAM BCAT 시절 원본 로그(2026-07-28~08-02, 5개 항목)가 그대로 섞여 있어 최신 항목을 찾기 어렵다는 문제 제기를 받음
 - `devlog.md`에서 2026-08-04(현재 주제 확정) 이전 원본 로그 5개를 [`devlog-archive-pre-finfet.md`](devlog-archive-pre-finfet.md)로 분리 — 내용은 그대로 보존하고, `devlog.md`에는 짧은 안내와 링크만 남김. 압축 서술은 이미 [`topic-selection-history.md`](topic-selection-history.md)에 있었으므로 원본 로그는 "날짜별 상세 기록"으로서만 역할 재조정
-- `docs/reports/`의 DBCAT 전용 문서(`project-plan.md`, `dram-basics.md`)와 최상위 `tcad/`(DRAM BCAT SProcess/SDevice/SVisual 스크립트)를 `docs/old-projects/`로 통합 이동. 여전히 유효한 `award-analysis-and-topic-selection.md`(수상작 분석)는 `docs/reports/`에 그대로 둠
+- `docs/reports/`의 DBCAT 전용 문서(`project-plan.md`, `dram-basics.md`)와 최상위 `tcad/`(DRAM BCAT SProcess/SDevice/SVisual 스크립트)를 `docs/old-projects/`로 통합 이동. 당시에는 `award-analysis-and-topic-selection.md`를 `docs/reports/`에 남겼으며, 최종 정리 시점인 2026-09-02에 `docs/archive/`로 이동함
 - 이동에 따라 `references.md`(섹션 8)·`topic-selection-history.md`(폐기 자료 목록)의 상대경로 링크를 `old-projects/`로 수정
 - **팀원이 devlog에 2026-08-05 항목이 통째로 빠져있다는 것을 지적** — 실제로는 그날 (1) People-Bean/Luryi-Suhir 임계두께 공식에 baseline 실치수(fin 반폭 7.5nm)를 대입해 계산했으나 Ge 42~100% 전 구간이 "무제한 보호"로 나와 결함 경계 방법론이 판별력을 잃었고, (2) 이를 근거로 Stress Transfer Efficiency(STE)로 방법론을 전환했으며, (3) `finfet_sde.scm`→`finfet_sprocess.scm` 재명명과 FR(리세스 깊이) 변수 신규 도입까지 그날 있었던 일인데, 로그를 안 남겨서 생긴 공백이었음. `competition/README.md` 여정 요약(5→6단계)과 `Share/baseline/README.md` 변경이력(2026-08-05 행)에는 이미 근거가 남아있어서, 이를 기반으로 devlog에 2026-08-05 항목을 새로 작성해 08-04와 08-06 사이에 삽입
 - `references.md` 섹션 3(임계두께 공식)도 함께 정리 — People-Bean[F1]·Hartmann[F3]은 폐기된 방법론의 근거로 재분류하되 "실제 검증을 시도했던 기록"이라 삭제하지 않고 폐기 표시만 추가. Luryi-Suhir[F2]는 오히려 **지금도 쓰는 물리적 근거**(좁은 fin → 탄성 완화 큼 → 결함은 안 생기지만 그만큼 STE도 낮아짐)라는 걸 재확인해 "물리 이해용" 섹션으로 재분류(폐기 아님) — 팀원이 "이미 폐기한 내용인데 레퍼런스에 남을 필요가 있냐"고 질문한 데 대한 답변 과정에서 발견
