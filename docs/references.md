@@ -1,14 +1,21 @@
-# 참고 자료
+# 참고 자료와 검증 기록
 
-> **현재 주제**: FinFET + Embedded SiGe Source/Drain 응력공학 — Ge 조성(%) × 리세스 깊이(nm) Stress Transfer Efficiency(STE) 지도
+> **현재 주제**: FinFET pMOS Embedded SiGe S/D의 응력 전달 특성 및 리세스 설계창 분석
 >
-> 이 문서는 **현재 주제에 필요한 자료만** 담는다. 이전에 검토했다가 폐기한 GAA 나노시트 계열, DRAM BCAT 계열(코너 라운딩·DBCAT×접합 도핑 둘 다)의 참고문헌은 이 문서에서 뺐다 — git 히스토리로 복원 가능하며, 폐기 경위는 [`topic-selection-history.md`](topic-selection-history.md)에 서술돼 있다.
+> 이 문서는 최종 보고서에 사용한 참고문헌과 개발 단계의 문헌 검토 기록을 함께 보존한다. 최종 결과의 수치와 해석은 [`reports/경진대회_보고서.pdf`](reports/경진대회_보고서.pdf)를 기준으로 한다.
 >
-> **개정 (2026-08-04)**: DBCAT(질화막 두께)×접합 도핑에서 FinFET + Embedded SiGe S/D 응력공학으로 전환하며 전면 교체. 경위는 [devlog.md](devlog.md) 참고.
->
-> ⚠️ **2026-08-06 기준 미반영**: 방법론은 2026-08-05에 결함 발생 경계(trade-off boundary)에서 Stress Transfer Efficiency(STE)로 다시 전환됐으나(경위는 [devlog.md 2026-08-05 항목](devlog.md) 참고), 아래 섹션 1·2·5~8은 아직 이전 프레이밍 기준 서술이 남아있다. 섹션 3(임계두께 공식)만 이번에 STE 전환을 반영해 정리했고, 나머지 전면 갱신은 별도 작업으로 남겨둔다 — 지금 안 된 것을 된 것처럼 적지 않기 위해 그대로 표시.
+> 아래의 폐기 방법론과 미확인 후보는 최종 결론의 근거가 아니라 검토 과정의 기록이다.
 >
 > **표기 원칙**: 각 항목에 `[확인됨]` 또는 `[미확인 — 원문 대조 필요]`를 반드시 표시한다. 이 세션 전체의 핵심 원칙이 "확인 안 된 건 확인 안 됐다고 표시한다"였다.
+
+## 최종 보고서 참고문헌
+
+1. M. Choi, V. Moroz, L. Smith, O. Penzin, “14 nm FinFET Stress Engineering with Epitaxial SiGe Source/Drain,” *2012 International Symposium on Technology, Systems and Applications*. DOI: 10.1109/ISTDM.2012.6222469.
+2. C. Qin, H. Yin, G. Wang, et al., “Study of sigma-shaped source/drain recesses for embedded-SiGe pMOSFETs,” *Microelectronic Engineering*, Vol. 181, 2017. DOI: 10.1016/j.mee.2017.07.001.
+3. G. Eneman, P. Verheyen, R. Rooyackers, et al., “Scalability of the Si1−xGex Source/Drain Technology for the 45-nm Technology Node and Beyond,” *IEEE Transactions on Electron Devices*, Vol. 53, No. 7, pp. 1647–1656, 2006. DOI: 10.1109/TED.2006.876390.
+4. P. M. Mooney, “Strain relaxation and dislocations in SiGe/Si structures,” *Materials Science and Engineering R: Reports*, Vol. 17, No. 3, pp. 105–146, 1996. DOI: 10.1016/S0927-796X(96)00192-1.
+
+## 개발 단계 문헌 검토 기록
 
 ## 1. 베이스라인 (팀 전원 필독)
 
@@ -28,7 +35,7 @@
 **[P2]** Gendron-Hansen, Korablev, Chakarov, Egley, Cho, Benistant (Synopsys), "TCAD analysis of FinFET stress engineering for CMOS technology scaling," *SISPAD* 2015, pp. 417-420. DOI: 10.1109/SISPAD.2015.7292349.
 
 - **역할**: **우리 프로젝트와 가장 근접한 선행연구.** eSiGe 캐비티(리세스) 설계와 FinFET 세대별 응력의 관계를 다룸
-- **차별점 (반드시 발표에서 명시)**: 이 논문의 축은 **기술 노드 세대**, 목표는 **응력 최대화**. 우리 축은 **Ge%×리세스 깊이**, 목표는 **결함 발생 경계 매핑**(응력 최댓값이 아니라 안전 영역의 최댓값을 찾는 것)
+- **최종 보고서와의 차이**: 이 후보 논문은 기술 노드에 따른 응력공학을 다루며, 본 연구는 Ge 조성×FR 25개 격자점의 절대 응력·STE·누설 지도를 비교해 FR 15–20 nm 설계창을 도출한다.
 - **상태**: `[미확인 — 원문 대조 필요]` IEEE 페이월이라 초록/2차 요약만 확인. 독창성 주장의 최종 확인 단계이므로 반드시 원문 대조 필요
 
 **[P3]** Joshi et al., "Source/drain eSiGe engineering for FinFET technology," *Semiconductor Science and Technology*, 2017.
@@ -68,7 +75,7 @@
 
 - **Ge 조성**: Vegard's law에 따라 Ge%가 높을수록 SiGe의 자연 격자 상수가 커진다. Si 기판 위에 정합 성장하면서 억지로 눌린 압축 변형이 되고, 이 변형이 채널 실리콘까지 전달돼 정공 이동도를 높인다. Ge%가 높을수록 명목 응력(변형 에너지)은 커지지만, fin이 좁을수록 탄성 완화([F2])로 실제 채널 전달분(STE)은 그만큼 늘지 않을 수 있다.
 - **리세스 깊이**: 격자 차이와 무관한 순수 기하학적 변수. 깊을수록 SiGe 부피·채널 근접성이 늘어 응력 전달이 세지지만, 무한정 좋아지진 않는다 — "적당한 SiGe 오버필이 최대 응력"이라는 비단조적 결과가 40nm PMOS TCAD 문헌에서 확인됨. `[미확인 — 원문 대조 필요]` (2차 요약 기준)
-- **"Orthogonal(독립)"과 "트레이드오프"는 모순 아님**: 문헌에서 "Ge%와 리세스 깊이가 orthogonal한 설계 손잡이"라는 표현은 *성능 설계 관점*(각자 다른 성능 지표를 담당, 독립적으로 조작 가능)에서 하는 말이고, *응력 전달 관점*에서는 두 값이 함께 fin 내부 변형 분포를 정하므로 상호작용이 있을 수 있다.
+- **Ge–FR 관계의 최종 해석**: 두 변수를 독립이라고 단정하지 않는다. 25개 격자점에서 절대 응력은 Ge 방향, 같은-Ge STE는 FR 방향의 변화가 크며, Ioff는 두 변수의 영향이 함께 나타났다. 관계는 응답 지표별 2차원 지도의 양상으로 제시한다.
 - **FinFET 구속 효과**: FinFET은 fin이라는 좁은 구조라 SiGe가 옆면까지 둘러싸여 자란다(공간적 구속). 이 구속 구조가 평면(blanket) 기준보다 결함 없이 버티는 능력은 키우지만([F2]), 동시에 탄성 완화 때문에 채널로 전달되는 유효 응력은 깎는다 — baseline(fin 반폭 7.5nm)에서 결함 경계가 사실상 사라진 이유이자, STE가 낮게 나올 수 있는 이유이기도 하다.
 
 ## 6. 툴 레퍼런스
